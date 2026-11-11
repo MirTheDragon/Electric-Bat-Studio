@@ -6,6 +6,24 @@ Everything is synthesized from math: no sample libraries, no neural audio. A son
 
 > Formerly *Electric Sheep Studio*, built as claude.ai artifacts. It moved here when it outgrew the artifact size limit.
 
+![Python](https://img.shields.io/badge/engine-Python%20·%20numpy%20·%20scipy-3776AB?logo=python&logoColor=white)
+![JavaScript](https://img.shields.io/badge/studio-vanilla%20JS%20·%20Web%20Audio-F7DF1E?logo=javascript&logoColor=black)
+![Synthesis](https://img.shields.io/badge/sound-100%25%20synthesized-8B5CF6)
+![Instruments](https://img.shields.io/badge/instruments-37-EA580C)
+![Deterministic](https://img.shields.io/badge/renders-seeded%20%26%20deterministic-16A34A)
+
+### Colour key
+
+Every diagram below uses the same colours, so a block's colour tells you which layer it belongs to.
+
+![Intent](https://img.shields.io/badge/1-Intent-7C3AED?style=for-the-badge)
+![Generation](https://img.shields.io/badge/2-Generation-2563EB?style=for-the-badge)
+![Words](https://img.shields.io/badge/3-Words-DB2777?style=for-the-badge)
+![Sound](https://img.shields.io/badge/4-Sound-EA580C?style=for-the-badge)
+![Mix](https://img.shields.io/badge/5-Mix%20%26%20master-16A34A?style=for-the-badge)
+![Ears](https://img.shields.io/badge/6-Ears-CA8A04?style=for-the-badge)
+![People](https://img.shields.io/badge/People%20%26%20apps-475569?style=for-the-badge)
+
 ---
 
 ## Contents
@@ -55,60 +73,91 @@ A closed loop. The composer writes code, the engine renders and **measures**, an
 
 ```mermaid
 flowchart LR
-    C["Composer<br/>(Claude)"] -->|writes| S["Song program<br/>form · harmony · themes · lyrics · math lanes"]
-    S --> E["Engine<br/>generate → synthesize → sing → mix → master"]
-    E --> A["Audio<br/>mix + stems"]
-    E --> R["Render report<br/>loudness · masking · tension · friction · fit"]
-    A --> P["Studio / players"]
-    P -->|"listens, pins notes at bar & beat"| H["Mir<br/>(producer)"]
+    C(["🤖 Composer<br/>(Claude)"]) -->|writes| S["📜 Song program<br/>form · harmony · themes · lyrics · math lanes"]
+    S --> E["⚙️ Engine<br/>generate → synthesize → sing → mix → master"]
+    E --> A["🎧 Audio<br/>mix + stems"]
+    E --> R["📊 Render report<br/>loudness · masking · tension · friction · fit"]
+    A --> P["🖥️ Studio / players"]
+    P -->|"listens, pins notes at bar & beat"| H(["🎛️ Mir<br/>(producer)"])
     H -->|feedback| C
     R -->|"the composer's ears"| C
+
+    classDef people fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#0f172a
+    classDef intent fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#1e1b4b
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    classDef ears fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#422006
+    class C,H,P people
+    class S intent
+    class E sound
+    class A mix
+    class R ears
+    linkStyle 7 stroke:#ca8a04,stroke-width:2px
+    linkStyle 5,6 stroke:#475569,stroke-width:2px
 ```
 
 ---
 
 ## Architecture: the six layers
 
-Each layer only talks to the one below it through plain data (notes, parameters, audio buffers), so any layer can be swapped or regenerated on its own.
+Each layer only talks to the one below it through plain data (notes, parameters, audio buffers), so any layer can be swapped or regenerated on its own. The 👂 **Ears** at the bottom close the loop: their flags and numbers go back to 🎯 **Intent** for the next take.
 
 ```mermaid
 flowchart TB
-    subgraph L1["1 · Intent"]
+    subgraph L1["🎯 1 · Intent — what each moment is for"]
         direction LR
         i1["Album plan<br/>themes per track"] --- i2["Song sections<br/>feeling · energy · tension"] --- i3["Layer roles<br/>job · lane · depth · loudness rank"]
     end
-    subgraph L2["2 · Generation"]
+    subgraph L2["🧮 2 · Generation — the notes"]
         direction LR
         g1["Form & arc"] --- g2["Harmony<br/>progressions · voice leading"] --- g3["Themes & motifs"] --- g4["Melody builder<br/>+ critic"] --- g5["Rhythm & beat grammar"] --- g6["Math lanes"]
     end
-    subgraph L3["3 · Words"]
+    subgraph L3["✍️ 3 · Words — lyrics set to the band"]
         direction LR
         w1["Lyric planner"] --- w2["Syllables & stress"] --- w3["Lyric setter<br/>rhythm DP · melody DP"] --- w4["Lyric critic"]
     end
-    subgraph L4["4 · Sound"]
+    subgraph L4["🔊 4 · Sound — synthesis"]
         direction LR
         s1["batsynth instruments<br/>37 on one standard"] --- s2["Voice engine<br/>glottal source + formants"] --- s3["Transitions & FX"]
     end
-    subgraph L5["5 · Mix & master"]
+    subgraph L5["🎚️ 5 · Mix & master"]
         direction LR
         m1["Levels vs. kick"] --- m2["Sidechain pump<br/>vocal pocket"] --- m3["Buses & reverb sends"] --- m4["Master chain<br/>LUFS target · −1 dBTP"] --- m5["Section arc trim"]
     end
-    subgraph L6["6 · Ears (analysis)"]
+    subgraph L6["👂 6 · Ears — analysis"]
         direction LR
         a1["Loudness · true peak"] --- a2["Masking map<br/>band ownership"] --- a3["Tension curve"] --- a4["Harmonic friction"] --- a5["Recognition<br/>repetition"] --- a6["Intent checker"]
     end
-    L1 --> L2 --> L3 --> L4 --> L5 --> L6
-    L6 -.->|flags & numbers| L1
+    L1 ==> L2 ==> L3 ==> L4 ==> L5 ==> L6
+
+    classDef intent fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#1e1b4b
+    classDef gen fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+    classDef words fill:#fce7f3,stroke:#db2777,stroke-width:1.5px,color:#500724
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:1.5px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#052e16
+    classDef ears fill:#fef9c3,stroke:#ca8a04,stroke-width:1.5px,color:#422006
+    class i1,i2,i3 intent
+    class g1,g2,g3,g4,g5,g6 gen
+    class w1,w2,w3,w4 words
+    class s1,s2,s3 sound
+    class m1,m2,m3,m4,m5 mix
+    class a1,a2,a3,a4,a5,a6 ears
+    style L1 fill:#f5f3ff,stroke:#7c3aed,stroke-width:3px,color:#4c1d95
+    style L2 fill:#eff6ff,stroke:#2563eb,stroke-width:3px,color:#1e3a8a
+    style L3 fill:#fdf2f8,stroke:#db2777,stroke-width:3px,color:#831843
+    style L4 fill:#fff7ed,stroke:#ea580c,stroke-width:3px,color:#7c2d12
+    style L5 fill:#f0fdf4,stroke:#16a34a,stroke-width:3px,color:#14532d
+    style L6 fill:#fefce8,stroke:#ca8a04,stroke-width:3px,color:#713f12
 ```
 
 | Layer | What it decides | Where it lives |
 |---|---|---|
-| **1 · Intent** | What each section is *for*: feeling, energy (0–1), tension, which layers play which job in which frequency lane | song scripts (`songs/`), album plan in `songs.json` |
-| **2 · Generation** | The notes: form, chords, themes, melodies, beats, and the math that drives them | Song Seed (`studio/index.html`, `studio/studio.js`); song scripts |
-| **3 · Words** | Lyrics, syllables and stress, and where each syllable lands in rhythm and pitch | `engine/lyricsetter/`, Song Seed's lyric planner |
-| **4 · Sound** | How a note sounds: instrument models and the singing voice | `engine/batsynth/`, `engine/esvoice/` → `studio/esengine.js` |
-| **5 · Mix & master** | Balance, space, glue, loudness | song build scripts, `engine/lyricsetter/production.py` and `audio.py` |
-| **6 · Ears** | Whether the render did what layer 1 intended | analysis modules and render reports |
+| ![](https://img.shields.io/badge/1-Intent-7C3AED) | What each section is *for*: feeling, energy (0–1), tension, which layers play which job in which frequency lane | song scripts (`songs/`), album plan in `songs.json` |
+| ![](https://img.shields.io/badge/2-Generation-2563EB) | The notes: form, chords, themes, melodies, beats, and the math that drives them | Song Seed (`studio/index.html`, `studio/studio.js`); song scripts |
+| ![](https://img.shields.io/badge/3-Words-DB2777) | Lyrics, syllables and stress, and where each syllable lands in rhythm and pitch | `engine/lyricsetter/`, Song Seed's lyric planner |
+| ![](https://img.shields.io/badge/4-Sound-EA580C) | How a note sounds: instrument models and the singing voice | `engine/batsynth/`, `engine/esvoice/` → `studio/esengine.js` |
+| ![](https://img.shields.io/badge/5-Mix%20%26%20master-16A34A) | Balance, space, glue, loudness | song build scripts, `engine/lyricsetter/production.py` and `audio.py` |
+| ![](https://img.shields.io/badge/6-Ears-CA8A04) | Whether the render did what layer 1 intended | analysis modules and render reports |
 
 ---
 
@@ -120,18 +169,31 @@ One seed string determines the whole song. The seed picks an **archetype** (psyt
 
 ```mermaid
 flowchart LR
-    seed["Seed<br/>'electric-bat-1'"] --> rng["Seeded RNG<br/>one stream per decision"]
-    rng --> arch["Archetype<br/>e.g. Psytrance"]
-    arch --> decks["Weighted decks<br/>bpm · key · mode · progression · harmonic rhythm<br/>grammar · swing · form · length · math · arc<br/>theme · melody form · range · room · tape · master"]
-    decks --> inst["Instrument map<br/>kick · snare · bass · midbass · lead · chords · high · fx<br/>(instrument + preset per role)"]
-    decks --> doc["Song document<br/>electric-bat.song/0 (JSON)"]
+    seed(["🌱 Seed<br/>'electric-bat-1'"]) --> rng["🎲 Seeded RNG<br/>one stream per decision"]
+    rng --> arch["🏷️ Archetype<br/>e.g. Psytrance"]
+    arch --> decks["🃏 Weighted decks<br/>bpm · key · mode · progression · harmonic rhythm<br/>grammar · swing · form · length · math · arc<br/>theme · melody form · range · room · tape · master"]
+    decks --> inst["🎹 Instrument map<br/>kick · snare · bass · midbass · lead · chords · high · fx<br/>(instrument + preset per role)"]
+    decks --> doc["📄 Song document<br/>electric-bat.song/0 (JSON)"]
     inst --> doc
-    doc --> notes["Note generators<br/>per layer, per section"]
-    notes --> vox["Lyrics → syllables →<br/>rhythm & melody → voice (Worker)"]
-    notes --> play["Sample playback<br/>(pre-rendered batsynth one-shots)"]
-    vox --> mix["Browser mix<br/>balance · sidechain · reverb · master"]
+    doc --> notes["🧮 Note generators<br/>per layer, per section"]
+    notes --> vox["✍️ Lyrics → syllables →<br/>rhythm & melody → 🎤 voice (Worker)"]
+    notes --> play["🔊 Sample playback<br/>(pre-rendered batsynth one-shots)"]
+    vox --> mix["🎚️ Browser mix<br/>balance · sidechain · reverb · master"]
     play --> mix
-    mix --> view["Preview<br/>arrangement · progression map · math lane · band map · report"]
+    mix --> view["🖥️ Preview<br/>arrangement · progression map · math lane · band map · report"]
+
+    classDef people fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#0f172a
+    classDef intent fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#1e1b4b
+    classDef gen fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#172554
+    classDef words fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#500724
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    class seed,view people
+    class rng,arch,decks intent
+    class doc,notes gen
+    class vox words
+    class inst,play sound
+    class mix mix
 ```
 
 Everything in the song document can be overridden by hand (form, instrument per role, energy and tension curves, lyrics), and the same seed always regenerates the same song. The document is plain JSON, so an LLM can write or edit one directly.
@@ -150,13 +212,27 @@ The released tracks are Python programs. A song script declares:
 
 ```mermaid
 sequenceDiagram
-    participant S as song.py
-    participant B as build.py
-    participant I as instruments (batsynth)
-    participant L as lyricsetter
-    participant V as esvoice (Node)
-    participant M as mix & master
-    participant P as studio_score.py
+    box rgb(237,233,254) 🎯 Intent + 🧮 generation
+        participant S as song.py
+    end
+    box rgb(226,232,240) Orchestration
+        participant B as build.py
+    end
+    box rgb(255,237,213) 🔊 Sound
+        participant I as instruments (batsynth)
+    end
+    box rgb(252,231,243) ✍️ Words
+        participant L as lyricsetter
+    end
+    box rgb(255,237,213) 🎤 Voice
+        participant V as esvoice (Node)
+    end
+    box rgb(220,252,231) 🎚️ Mix
+        participant M as mix & master
+    end
+    box rgb(226,232,240) 🖥️ Player
+        participant P as studio_score.py
+    end
     S->>B: form, harmony, parts, lyrics, voices
     B->>I: render each layer → stems (cached by hash)
     B->>L: set lyric lines against the score
@@ -244,6 +320,60 @@ classDiagram
     Instrument <|-- EngineBass
     EngineBass <|-- VTwin
     EngineBass <|-- MuscleV8
+
+    style Param fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#1e1b4b
+    style Instrument fill:#ffedd5,stroke:#ea580c,stroke-width:3px,color:#431407
+    style EngineBass fill:#fed7aa,stroke:#c2410c,stroke-width:2px,color:#431407
+    style Servo fill:#fff7ed,stroke:#ea580c,color:#431407
+    style NeonChoir fill:#fff7ed,stroke:#ea580c,color:#431407
+    style Wobble fill:#fff7ed,stroke:#ea580c,color:#431407
+    style VTwin fill:#fff7ed,stroke:#c2410c,color:#431407
+    style MuscleV8 fill:#fff7ed,stroke:#c2410c,color:#431407
+```
+
+The 37 instruments by family. Each family has its own colour; the arrow shows what every voice turns into.
+
+```mermaid
+flowchart LR
+    subgraph robots["🤖 Robots & machines"]
+        direction TB
+        f1["⚙️ motion<br/>Servo · Hydraulic · Reconfigure · Brownout"]
+        f2["🗣️ voice<br/>Chatterbox · Robovox"]
+        f3["📡 data<br/>Modem · Mainframe"]
+        f4["⚡ energy<br/>Blaster · Materialize · Tesla"]
+        f5["🌀 machine<br/>Turbine · Klaxon"]
+        f6["🥁 percussion<br/>Clockwork · MechStomp"]
+    end
+    subgraph genres["🎛️ Genre pack"]
+        direction TB
+        f7["🌃 cyberpunk<br/>NeonBrass · Braam · DarkBass · SyncLead · NeonChoir"]
+        f8["🍄 hi-tech<br/>PsyBass · Acid · Twister"]
+        f9["🏠 house<br/>Supersaw · ProgPluck"]
+        f10["💥 dubstep<br/>Wobble · Growl · Reese · SubBass · Snare"]
+    end
+    subgraph engines["🏍️ Engine basses"]
+        direction TB
+        f11["🔥 combustion<br/>VTwin · MuscleV8 · Boxer · Crossplane<br/>Rotary · TwoStroke · Diesel"]
+    end
+    core{{"📐 core.py standard<br/>render_note → (2, n) float32<br/>−18 dBFS RMS · −1 dBFS peak · seeded"}}
+    robots --> core
+    genres --> core
+    engines --> core
+    core --> out(["🎵 stems for the mix"])
+
+    classDef rob fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49
+    classDef gen fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#4a044e
+    classDef eng fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a
+    classDef std fill:#ffedd5,stroke:#ea580c,stroke-width:3px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    class f1,f2,f3,f4,f5,f6 rob
+    class f7,f8,f9,f10 gen
+    class f11 eng
+    class core std
+    class out mix
+    style robots fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+    style genres fill:#fdf4ff,stroke:#c026d3,stroke-width:2px,color:#701a75
+    style engines fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
 ```
 
 **The contract** is what lets a song, the studio, a future human-facing synth or an LLM composer treat every instrument the same way:
@@ -280,15 +410,29 @@ Every robot instrument is *playable*: the note sets a pitch the sound lands on, 
 
 ```mermaid
 flowchart LR
-    T["Lyric line<br/>L('Hello, world,', bar 48, feel='hook', motif=[0,7,3])"] --> PH["phon.py<br/>syllables · stress · weight"]
-    SC["score.json<br/>16th grid · drum pattern · chords · held notes"] --> CX["context.py<br/>metric strength · chord at t · what's sounding"]
-    PH --> R["Rhythm DP<br/>stress ↔ strong 16ths<br/>natural durations · lock to a layer"]
+    T(["📝 Lyric line<br/>L('Hello, world,', bar 48, feel='hook', motif=[0,7,3])"]) --> PH["🔤 phon.py<br/>syllables · stress · weight"]
+    SC(["📄 score.json<br/>16th grid · drum pattern · chords · held notes"]) --> CX["🧭 context.py<br/>metric strength · chord at t · what's sounding"]
+    PH --> R["🥁 Rhythm DP<br/>stress ↔ strong 16ths<br/>natural durations · lock to a layer"]
     CX --> R
-    R --> MD["Melody DP<br/>chord tones on strong notes · steps<br/>speech contour · no semitone rubs"]
+    R --> MD["🎼 Melody DP<br/>chord tones on strong notes · steps<br/>speech contour · no semitone rubs"]
     CX --> MD
-    MD --> CR["critic.py<br/>stress order · typewriter runs · rubs · prose"]
-    MD --> SG["esvoice<br/>English → phonemes → performance → autotune → glottal + formant synthesis"]
-    SG --> PR["Production<br/>doubles · harmony · vocoder · robot · plate · delay"]
+    MD --> CR["🔍 critic.py<br/>stress order · typewriter runs · rubs · prose"]
+    MD --> SG["🎤 esvoice<br/>English → phonemes → performance → autotune → glottal + formant synthesis"]
+    SG --> PR["🎚️ Production<br/>doubles · harmony · vocoder · robot · plate · delay"]
+    CR -.->|"rewrite the line"| T
+
+    classDef intent fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#1e1b4b
+    classDef gen fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#172554
+    classDef words fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#500724
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    classDef ears fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#422006
+    class T intent
+    class SC,CX gen
+    class PH,R,MD words
+    class CR ears
+    class SG sound
+    class PR mix
 ```
 
 **The lyric setter** fits words to the band with two dynamic programmes per line.
@@ -313,6 +457,27 @@ The same engine runs in Python and, ported to JavaScript, in the browser (`studi
 ---
 
 ## Mix, master and the ears
+
+```mermaid
+flowchart LR
+    st(["🔊 Stems"]) --> lv["⚖️ Level vs. kick"] --> pump["💓 Sidechain pump"] --> pocket["🕳️ Vocal pocket<br/>dip 1.2–4.2 kHz while singing"]
+    vo(["🎤 Vocals"]) --> pocket
+    pocket --> bus["🚌 Buses<br/>drum clip · music clip · reverb sends"]
+    bus --> mst["🎛️ Master<br/>28 Hz HP · glue · look-ahead limiter"]
+    mst --> arc["📈 Arc trim<br/>sections under the loudest drop"]
+    arc --> out(["💿 −14 LUFS stream / ≈ −9 club<br/>≤ −1 dBTP"])
+    arc --> ears{{"👂 Ears<br/>loudness · masking · ownership<br/>tension · friction · recognition · intent"}}
+    ears -.->|"flags & numbers"| lv
+
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#431407
+    classDef mix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    classDef ears fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#422006
+    classDef people fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#0f172a
+    class st,vo sound
+    class lv,pump,pocket,bus,mst,arc mix
+    class ears ears
+    class out people
+```
 
 **Mix:**
 - Every layer is levelled against the kick and pumped from the kick's times.
@@ -343,18 +508,32 @@ The same engine runs in Python and, ported to JavaScript, in the browser (`studi
 
 ```mermaid
 flowchart TB
-    subgraph SS["studio/ — Song Seed"]
-        ix["index.html<br/>UI, archetypes & decks, song document,<br/>progression map, report"] --> sj["studio.js<br/>notes, lyrics, vocals, playback, mix, preview"]
-        sj --> smp["samples.js + samples/*.mp3<br/>152 batsynth one-shots with root pitch"]
-        sj --> vw["voice-worker.js"] --> ese["esengine.js<br/>voice engine (JS port)"]
+    subgraph SS["🌱 studio/ — Song Seed"]
+        ix["🧭 index.html<br/>UI, archetypes & decks, song document,<br/>progression map, report"] --> sj["🧮 studio.js<br/>notes, lyrics, vocals, playback, mix, preview"]
+        sj --> smp["🔊 samples.js + samples/*.mp3<br/>152 batsynth one-shots with root pitch"]
+        sj --> vw["🧵 voice-worker.js"] --> ese["🎤 esengine.js<br/>voice engine (JS port)"]
     end
-    subgraph PL["players/"]
-        ns["night-shift/<br/>8 tracks"]
-        fb["final-boss/<br/>single"]
-        ns --> sjson["songs.json<br/>album, takes, stems, key, Camelot"]
-        ns --> score["songs/NN/score.json<br/>arrangement, layers, notes, lanes, lyrics"]
-        ns -.-> audio["songs/NN/mix.mp3 + stems/<br/>(build output, not in git)"]
+    subgraph PL["🎧 players/"]
+        ns["🌙 night-shift/<br/>8 tracks"]
+        fb["👾 final-boss/<br/>single"]
+        ns --> sjson["📇 songs.json<br/>album, takes, stems, key, Camelot"]
+        fb --> sjson
+        ns --> score["📄 songs/NN/score.json<br/>arrangement, layers, notes, lanes, lyrics"]
+        fb --> score
+        ns -.-> audio["💿 songs/NN/mix.mp3 + stems/<br/>(build output, not in git)"]
+        fb -.-> audio
     end
+
+    classDef people fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#0f172a
+    classDef gen fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#172554
+    classDef sound fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#431407
+    classDef missing fill:#f1f5f9,stroke:#94a3b8,stroke-width:2px,stroke-dasharray:5 5,color:#475569
+    class ix,ns,fb people
+    class sj,sjson,score gen
+    class smp,vw,ese sound
+    class audio missing
+    style SS fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#0f172a
+    style PL fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#0f172a
 ```
 
 - **Song Seed** — generate a song from a seed, inspect it ("How this song was built", "Layers and their generators", "Math layer", "Rules applied"), edit any decision, hear it in the browser and copy the song document as JSON.
@@ -363,6 +542,32 @@ flowchart TB
 ---
 
 ## Repository map and port status
+
+![ported](https://img.shields.io/badge/ported-16A34A) ![in progress](https://img.shields.io/badge/in%20progress-CA8A04) ![to rebuild](https://img.shields.io/badge/to%20rebuild-DC2626)
+
+```mermaid
+flowchart LR
+    repo(["📦 Electric-Bat-Studio"])
+    repo --> studio["🌱 studio/<br/>Song Seed + 152 samples"]
+    repo --> players["🎧 players/<br/>Night Shift · Final Boss"]
+    repo --> engine["⚙️ engine/"]
+    engine --> bs["🔊 batsynth<br/>core · dsp · robots · genres · engines"]
+    engine --> bsx["🔊 batsynth extras<br/>sketches · demos · jam · mix · check"]
+    engine --> ls["✍️ lyricsetter<br/>setter.py ✓ · context · phon · critic · …"]
+    engine --> ev["🎤 esvoice<br/>voice engine sources"]
+    engine --> mm["👂 analysis layer<br/>harmony · tension · masking · motifs"]
+    repo --> songs["🎼 songs/<br/>night_shift · final_boss builds"]
+    repo --> notes["📚 docs/notes/<br/>design notes"]
+
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16
+    classDef wip fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#422006
+    classDef lost fill:#fee2e2,stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#450a0a
+    classDef root fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#0f172a
+    class repo,engine root
+    class studio,players,bs done
+    class bsx,ls,ev,songs,notes wip
+    class mm lost
+```
 
 ```
 Electric-Bat-Studio/
