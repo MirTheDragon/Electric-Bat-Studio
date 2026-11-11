@@ -1,0 +1,1371 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Night Shift Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a mixing-desk page. Sticky transport, a math-and-arrangement timeline,
+   one lane per layer with its own description, and a side column for "now" + listener notes. */
+:root {
+  --bg: #eceef3; --surface: #f8f9fb; --sunk: #e2e5ec; --fg: #191b27; --muted: #5a6074;
+  --line: #d2d6e0; --accent: #b56f0c; --accent-ink: #ffffff; --good: #2f8a5b; --warn: #b2452f;
+  --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --label-w: 250px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1017; --surface: #161822; --sunk: #0b0c12; --fg: #e7e7ef; --muted: #9196aa;
+  --line: #282b3a; --accent: #f0ac45; --accent-ink: #1a1306; --good: #5fcf94; --warn: #ef7a62; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1017; --surface: #161822; --sunk: #0b0c12; --fg: #e7e7ef; --muted: #9196aa;
+  --line: #282b3a; --accent: #f0ac45; --accent-ink: #1a1306; --good: #5fcf94; --warn: #ef7a62; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface) }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1440px; margin: 0 auto }
+button { font: inherit; color: inherit; cursor: pointer }
+button:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+.eyebrow { font: 500 11px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
+
+/* header */
+header.top { padding-block: 28px 18px }
+.brand { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap }
+.introbox { max-width: 68ch; margin-top: 14px; padding: 10px 14px; border-left: 2px solid var(--accent); background: var(--surface); border-radius: 0 6px 6px 0 }
+.introbox p { margin: 4px 0 0; font: italic 19px/1.4 var(--display) }
+.album { padding: 16px; display: grid; gap: 8px }
+.album .astmt { color: var(--muted); font-size: 13px; margin: 0 }
+.tracks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px }
+.trow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px }
+.dl { display: inline-flex; align-items: center; gap: 5px; margin-right: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 999px; padding: 3px 9px 3px 7px; font: 500 10.5px var(--mono); letter-spacing: .05em; cursor: pointer; white-space: nowrap }
+.dl:hover { color: var(--fg); border-color: var(--accent) }
+.dl svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round }
+.dl[data-state="busy"] { cursor: progress; opacity: .7 }
+.dl[data-state="done"] { color: var(--good); border-color: var(--good) }
+.dl[data-state="err"] { color: var(--warn); border-color: var(--warn) }
+.take { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 0 8px 8px 38px; font: 11px var(--mono); color: var(--muted) }
+.take .rb { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 2px 10px; font: 500 11px var(--mono) }
+.take .rb:hover { border-color: var(--accent) }
+.take .rb[disabled] { opacity: .55 }
+.take .st { color: var(--accent) }
+.take form { display: flex; gap: 6px; width: 100%; margin-top: 2px }
+.take input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: 12px var(--body); color: var(--fg) }
+.take details { width: 100% }
+.take summary { cursor: pointer }
+.take .tk { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0 }
+.take .tk button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent) }
+.track { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 7px 8px; border-radius: 6px; border: 0; background: transparent; text-align: left; width: 100% }
+.track .tn { font: 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.track .tt { font-weight: 500; min-width: 0 }
+.track .tf { display: block; font-size: 12px; color: var(--muted); font-weight: 400 }
+.track .tb { font: 11px var(--mono); color: var(--muted) }
+.track[data-status="written"] { cursor: pointer }
+.track[data-status="written"]:hover { background: var(--sunk) }
+.track[aria-current="true"] { background: var(--sunk); box-shadow: inset 2px 0 0 var(--accent) }
+.track[data-status="planned"] .tt { color: var(--muted); font-weight: 400 }
+.track .pl { font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--line); border-radius: 3px; padding: 0 4px; margin-left: 4px }
+h1 { font: italic 400 clamp(40px, 6vw, 72px)/1 var(--display); margin: 10px 0 6px; letter-spacing: -.01em; text-wrap: balance }
+.sub { font: 400 14px var(--mono); color: var(--muted) }
+.statement { max-width: 68ch; margin: 14px 0 0; color: var(--fg); opacity: .9 }
+.facts { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; font: 12px var(--mono); color: var(--muted) }
+.facts b { color: var(--fg); font-weight: 500 }
+
+/* transport */
+.transport { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-block: 1px solid var(--line) }
+.transport .wrap { display: flex; gap: 14px; align-items: center; padding-block: 10px; flex-wrap: wrap }
+.play { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center }
+.play svg { width: 18px; height: 18px; fill: currentColor }
+.clock { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; min-width: 9ch }
+.clock small { color: var(--muted); font-size: 12px }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden }
+.seg button { border: 0; background: transparent; padding: 6px 11px; font: 500 12px var(--mono); color: var(--muted) }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg) }
+.readout { display: flex; gap: 16px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-left: auto }
+.readout b { color: var(--fg); font-weight: 500 }
+.status { font: 12px var(--mono); color: var(--muted) }
+.transport .lyricbar { display: flex; gap: 6px 16px; align-items: baseline; flex-wrap: wrap; padding-block: 0 10px; min-height: 0 }
+.ly-now { font: italic 400 22px/1.25 var(--display); color: var(--fg); min-width: 0; overflow-wrap: anywhere }
+.ly-next { font-size: 13px; color: var(--muted); min-width: 0; overflow-wrap: anywhere }
+.ly-who { font: 500 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent) }
+.lyrics .concept { color: var(--muted); font-size: 14px; margin: 6px 0 10px }
+.lyrics ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: 420px; overflow-y: auto }
+.lyrics li button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 3.4em 1fr; gap: 8px; width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 14px }
+.lyrics li button:hover { background: var(--sunk) }
+.lyrics li button:focus-visible { outline: 2px solid var(--accent) }
+.lyrics li .t { font: 11px var(--mono); color: var(--muted); padding-top: 2px }
+.lyrics li .w { display: block; font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.lyrics li.cur button { background: var(--sunk); color: var(--accent) }
+
+/* main grid */
+main.grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; padding-block: 20px 60px }
+@media (max-width: 980px) { main.grid { grid-template-columns: minmax(0, 1fr) } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px }
+.geo .geo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 0 16px 16px }
+.geo figure { margin: 0; display: grid; gap: 6px }
+.geo canvas { width: 100%; aspect-ratio: 1 / 1; background: var(--sunk); border-radius: 6px; display: block }
+.geo figcaption { font: 12px/1.45 var(--mono); color: var(--muted) }
+.geo figcaption b { color: var(--fg); font-weight: 500 }
+.geo .image { padding: 0 16px; margin: 2px 0 10px; color: var(--fg); max-width: 70ch }
+@media (max-width: 640px) { .geo .geo-grid { grid-template-columns: minmax(0, 1fr) } }
+.panel h2 { font: italic 400 24px/1.1 var(--display); margin: 0 }
+
+/* timeline */
+.timeline { padding: 14px 14px 10px; min-width: 0 }
+.tl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap }
+.canvas-box { position: relative; cursor: pointer; touch-action: pan-y }
+.canvas-box canvas { display: block; width: 100%; }
+.ph { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--accent); left: calc(var(--ph, 0) * 100%); pointer-events: none; box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent) }
+.tl-labels { position: absolute; left: 6px; top: 0; pointer-events: none }
+.tl-labels span { position: absolute; left: 0; white-space: nowrap; font: 500 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: color-mix(in oklab, var(--surface) 80%, transparent); padding: 0 3px; border-radius: 2px }
+.tip { position: absolute; z-index: 4; max-width: 300px; background: var(--fg); color: var(--bg); font: 12px/1.4 var(--body); padding: 7px 9px; border-radius: 5px; pointer-events: none; transform: translate(-50%, calc(-100% - 10px)) }
+
+/* layers */
+.layers { margin-top: 16px; padding: 6px 0 }
+.layers-head { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 14px 10px; gap: 10px; flex-wrap: wrap }
+.lane { display: grid; grid-template-columns: var(--label-w) minmax(0, 1fr); border-top: 1px solid var(--line) }
+.lane-label { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 14px; min-width: 0 }
+.chip { width: 10px; height: 10px; border-radius: 2px; flex: none; background: var(--c) }
+.ltext { display: grid; min-width: 0; flex: 1; line-height: 1.25 }
+.lmeta { font: 11px var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.lname { border: 0; background: none; padding: 0; text-align: left; font: 500 13px var(--body); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 }
+.lname:hover { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
+.ms { display: flex; gap: 4px; flex: none }
+.ms button { width: 24px; height: 22px; border: 1px solid var(--line); background: transparent; border-radius: 4px; font: 500 11px var(--mono); color: var(--muted); padding: 0 }
+.ms button[aria-pressed="true"].m { background: var(--warn); border-color: var(--warn); color: var(--bg) }
+.ms button[aria-pressed="true"].s { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.lane.dim .lane-label, .lane.dim .strip { opacity: .35 }
+.strip { position: relative; height: 46px; cursor: pointer; background: var(--sunk); touch-action: pan-y }
+.strip canvas { position: absolute; inset: 0; width: 100%; height: 100% }
+#lanes.zoomed .strip { height: 86px; cursor: grab }
+#lanes.zoomed .strip.dragging { cursor: grabbing }
+#lanes .strip .ph { left: calc(var(--phl, var(--ph, 0)) * 100%); opacity: var(--phv, 1) }
+.zoombar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 0 14px 10px }
+.zoombar .seg button { padding: 4px 10px }
+.zoombar label { font: 12px var(--mono); color: var(--muted); display: inline-flex; gap: 5px; align-items: center }
+.zoombar input[type=range] { flex: 1 1 220px; min-width: 140px; accent-color: var(--accent) }
+.zoombar .zr { font: 11px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.ntip { position: fixed; z-index: 20; max-width: 280px; background: var(--fg); color: var(--bg); font: 12px/1.4 var(--mono); padding: 6px 8px; border-radius: 5px; pointer-events: none; transform: translate(-50%, calc(-100% - 12px)) }
+.detail { grid-column: 1 / -1; padding: 4px 14px 14px calc(14px + 18px); display: grid; gap: 6px; max-width: 80ch }
+.detail p { margin: 0 }
+.detail .math { font: 13px var(--mono); color: var(--fg); background: var(--sunk); padding: 6px 9px; border-radius: 4px; overflow-x: auto; white-space: nowrap }
+.detail .inst, .detail .lanep { color: var(--muted); font-size: 13px }
+.detail .purpose { font-size: 15px }
+.detail b { font-weight: 600 }
+.fmap { padding: 14px; margin-top: 16px; min-width: 0 }
+.fmap canvas { display: block; width: 100% }
+.fmap .note-l { color: var(--muted); font-size: 13px; margin: 2px 0 10px; max-width: 70ch }
+.moves { margin: 2px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px }
+@media (max-width: 640px) {
+  .lane { grid-template-columns: minmax(0, 1fr) }
+  .strip { height: 34px }
+  .detail { padding-left: 14px }
+}
+
+/* side column */
+aside { display: grid; gap: 16px; align-content: start; min-width: 0 }
+.now { padding: 16px }
+.now .meter { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; margin: 10px 0 12px }
+.now .meter i { display: block; height: 100%; background: var(--accent); width: 0 }
+.now dl { margin: 0; display: grid; gap: 10px }
+.now dt { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.now dd { margin: 2px 0 0 }
+.now .feeling { font: italic 19px/1.35 var(--display) }
+.layerchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px }
+.layerchips span { font: 11px var(--mono); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--line); display: inline-flex; gap: 5px; align-items: center }
+.event { margin-top: 12px; padding: 9px 10px; border-left: 2px solid var(--accent); background: var(--sunk); font-size: 13px; border-radius: 0 4px 4px 0 }
+.next { margin-top: 10px; font: 12px var(--mono); color: var(--muted) }
+
+.notes { padding: 16px; display: grid; gap: 12px }
+.compose { display: grid; gap: 8px }
+.compose textarea { width: 100%; min-height: 70px; resize: vertical; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font: 14px/1.45 var(--body); color: var(--fg) }
+.tags { display: flex; flex-wrap: wrap; gap: 5px }
+.tags button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 3px 9px; font: 12px var(--body); color: var(--muted) }
+.layerpick { margin-top: 6px } .layerpick .lp-label { font: 12px var(--body); color: var(--muted); align-self: center; margin-right: 2px }
+.tagline .lyr { border-style: dashed }
+.tags button[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); background: color-mix(in oklab, var(--accent) 16%, transparent) }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.btn { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 7px 12px; font: 500 13px var(--body) }
+.btn.primary { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.btn:disabled { opacity: .5; cursor: default }
+.nlist { display: grid; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 2px }
+.note { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; display: grid; gap: 4px; background: var(--bg) }
+.note .meta { display: flex; justify-content: space-between; gap: 8px; font: 11px var(--mono); color: var(--muted) }
+.note .meta button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent) }
+.note.claude { border-left: 2px solid var(--accent) }
+.note p { margin: 0; font-size: 14px; overflow-wrap: anywhere }
+.note .tagline { display: flex; gap: 4px; flex-wrap: wrap }
+.note .tagline span { font: 11px var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 5px }
+.empty { color: var(--muted); font-size: 13px }
+
+/* pick one of two: blind A/B listening */
+.ab { padding: 16px; display: grid; gap: 10px }
+.ab-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap }
+.ab-q { margin: 0; font: italic 19px/1.35 var(--display) }
+.ab-about { margin: 0; font-size: 13px; color: var(--muted) }
+.ab-meta { font: 11px var(--mono); color: var(--muted) }
+.ab-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+.ab-side { display: grid; gap: 2px; justify-items: center; padding: 12px 8px 10px; border: 1px solid var(--line); background: var(--bg); border-radius: 8px }
+.ab-side b { font: italic 400 34px/1 var(--display) }
+.ab-side small { font: 11px var(--mono); color: var(--muted) }
+.ab-side[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent) }
+.ab-side[aria-pressed="true"] small { color: var(--accent) }
+.ab-side.chosen { background: color-mix(in oklab, var(--accent) 14%, var(--bg)) }
+.ab-bar { height: 4px; background: var(--sunk); border-radius: 2px; overflow: hidden; cursor: pointer }
+.ab-bar i { display: block; height: 100%; width: 0; background: var(--accent) }
+.ab-pick { display: flex; gap: 6px; align-items: center; flex-wrap: wrap }
+.ab-pick .lbl { font-size: 13px; color: var(--muted); margin-right: 2px }
+.ab-pick .btn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.ab input { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font: 13px var(--body); color: var(--fg) }
+.ab input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.ab details { font-size: 13px; border-top: 1px solid var(--line); padding-top: 8px }
+.ab details summary { cursor: pointer; color: var(--accent); font: 12px var(--mono) }
+.ab details p { margin: 6px 0 0 }
+.ab-dots { display: flex; gap: 4px; flex-wrap: wrap }
+.ab-dots button { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); background: transparent; font: 10px var(--mono); color: var(--muted); padding: 0 }
+.ab-dots button.done { background: var(--sunk); color: var(--fg) }
+.ab-dots button[aria-current="true"] { border-color: var(--accent); color: var(--fg) }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto } }
+</style>
+
+<header class="top wrap">
+  <div class="brand">
+    <span class="eyebrow" id="album-eyebrow">Night Shift · an Electric Bat album for the dance floor</span>
+  </div>
+  <h1 id="title">Loading…</h1>
+  <div class="sub" id="subtitle"></div>
+  <div class="introbox" id="introbox" hidden><span class="eyebrow" id="intro-label">Introduction</span><p id="intro"></p></div>
+  <p class="statement" id="statement"></p>
+  <div class="facts" id="facts"></div>
+</header>
+
+<div class="transport">
+  <div class="wrap">
+    <button class="play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="playicon"><path d="M7 4v16l13-8z"/></svg></button>
+    <div class="clock" id="clock">0:00.0 <small>/ 0:00</small></div>
+    <div class="seg" role="group" aria-label="Playback source">
+      <button id="m-master" aria-pressed="true" title="This take, mastered">Master</button>
+      <button id="m-take4" aria-pressed="false" title="The same band and master chain with the previous take's vocals, for comparison" hidden>Take 4</button>
+      <button id="m-stems" aria-pressed="false">Stems</button>
+    </div>
+    <span class="status" id="status"></span>
+    <div class="readout" id="readout"></div>
+  </div>
+  <div class="wrap lyricbar" id="lyricbar" hidden aria-live="polite">
+    <span class="ly-who" id="ly-who"></span><span class="ly-now" id="ly-now"></span><span class="ly-next" id="ly-next"></span>
+  </div>
+</div>
+
+<main class="grid wrap">
+  <div style="min-width:0">
+    <section class="panel timeline">
+      <div class="tl-head">
+        <h2>Arrangement &amp; the math under it</h2>
+        <span class="eyebrow">click anywhere to seek</span>
+      </div>
+      <div class="canvas-box" id="tlbox">
+        <canvas id="tl"></canvas>
+        <div class="tl-labels" id="tllabels"></div>
+        <div class="ph"></div>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel geo" id="geopanel" hidden>
+      <div class="tl-head">
+        <h2>The geometry</h2>
+        <span class="eyebrow">follows the playhead</span>
+      </div>
+      <p class="image" id="geo-image"></p>
+      <div class="geo-grid">
+        <figure><canvas id="geo-ring" aria-label="The song's mathematical picture, following the playhead"></canvas><figcaption id="geo-ring-cap"></figcaption></figure>
+        <figure><canvas id="geo-tz" aria-label="The harmony's path on the Tonnetz"></canvas><figcaption id="geo-tz-cap"></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="panel fmap">
+      <div class="tl-head">
+        <h2>Who owns which frequencies</h2>
+        <span class="eyebrow">lit rows are playing in this section</span>
+      </div>
+      <p class="note-l">Each row is where a layer's energy actually sits, measured from its rendered audio (low on the left, high on the right). The bar marks the middle 80% of its energy. When two lit rows sit on top of each other, they melt together.</p>
+      <canvas id="fm"></canvas>
+    </section>
+
+    <section class="panel layers">
+      <div class="layers-head">
+        <h2>Layers</h2>
+        <span class="eyebrow">name opens description · M mute · S solo · ctrl+wheel zooms, drag pans</span>
+      </div>
+      <div class="zoombar" role="group" aria-label="Zoom and scroll the layers">
+        <div class="seg"><button id="z-out" type="button" aria-label="Zoom out">−</button><button id="z-in" type="button" aria-label="Zoom in">+</button><button id="z-fit" type="button">Whole song</button></div>
+        <input type="range" id="z-scroll" min="0" max="1000" value="0" aria-label="Scroll through the song">
+        <label><input type="checkbox" id="z-follow" checked> follow</label>
+        <span class="zr" id="z-range"></span>
+      </div>
+      <div id="lanes"></div>
+      <div class="ntip" id="ntip" hidden></div>
+    </section>
+  </div>
+
+  <aside>
+    <section class="panel album" id="albumpanel" hidden>
+      <span class="eyebrow">Album</span>
+      <h2 id="album-title">—</h2>
+      <p class="astmt" id="album-stmt"></p>
+      <ol class="tracks" id="tracks"></ol>
+    </section>
+    <section class="panel now" aria-live="polite">
+      <div class="eyebrow" id="now-pos">Section</div>
+      <h2 id="now-name" style="font-size:30px;margin-top:4px">—</h2>
+      <div class="meter" title="Energy target"><i id="now-energy"></i></div>
+      <dl>
+        <div><dt>Intent</dt><dd id="now-intent"></dd></div>
+        <div><dt>Should feel like</dt><dd class="feeling" id="now-feeling"></dd></div>
+        <div><dt>Playing</dt><dd><div class="layerchips" id="now-layers"></div></dd></div>
+        <div><dt>What moves, and why</dt><dd><ul class="moves" id="now-moves"></ul></dd></div>
+      </dl>
+      <div class="next" id="now-beat"></div>
+      <div class="event" id="now-event" hidden></div>
+      <div class="next" id="now-next"></div>
+    </section>
+
+    <section class="panel lyrics" id="lyricspanel" hidden>
+      <span class="eyebrow">Sung by the Electric Bat voice</span>
+      <h2>Lyrics</h2>
+      <p class="concept" id="ly-concept"></p>
+      <ol id="ly-list"></ol>
+    </section>
+
+    <section class="panel notes">
+      <h2>Listener notes</h2>
+      <div class="compose">
+        <textarea id="note-text" placeholder="What did you feel here? What works, what drags?"></textarea>
+        <div class="tags" id="note-tags"></div>
+        <div class="tags layerpick" id="note-layers" aria-label="Which layer is it about?"></div>
+        <div class="row">
+          <button class="btn primary" id="note-pin">Pin at 0:00</button>
+          <span class="status" id="note-status"></span>
+        </div>
+      </div>
+      <div class="nlist" id="nlist"><p class="empty">No notes yet. Play the song, and when something lands or drags, write it down here. It gets pinned to that moment, and I read these when I revise.</p></div>
+    </section>
+
+    <section class="panel ab" id="abpanel" hidden aria-labelledby="ab-title">
+      <div class="ab-head">
+        <h2 id="ab-title">Pick one of two</h2>
+        <span class="eyebrow" id="ab-count"></span>
+      </div>
+      <div class="ab-dots" id="ab-dots" aria-label="Pairs"></div>
+      <p class="ab-q" id="ab-q"></p>
+      <div class="ab-meta" id="ab-meta"></div>
+      <div class="ab-sides">
+        <button class="ab-side" id="ab-a" type="button" aria-pressed="false"><b>A</b><small>play</small></button>
+        <button class="ab-side" id="ab-b" type="button" aria-pressed="false"><b>B</b><small>play</small></button>
+      </div>
+      <div class="ab-bar" id="ab-bar" title="Click to seek"><i id="ab-prog"></i></div>
+      <div class="ab-pick">
+        <span class="lbl">I'd keep</span>
+        <button class="btn" id="ab-pa" type="button" aria-pressed="false">A</button>
+        <button class="btn" id="ab-pb" type="button" aria-pressed="false">B</button>
+        <button class="btn" id="ab-ps" type="button" aria-pressed="false">Can't tell</button>
+      </div>
+      <input id="ab-note" type="text" maxlength="300" placeholder="Why? (optional, saved with your pick)">
+      <div class="row">
+        <button class="btn" id="ab-prev" type="button">Previous</button>
+        <button class="btn primary" id="ab-next" type="button">Next pair</button>
+        <span class="status" id="ab-status"></span>
+      </div>
+      <p class="ab-about" id="ab-about"></p>
+      <details id="ab-reveal" hidden><summary>Which one was new?</summary><p id="ab-reveal-t"></p></details>
+    </section>
+  </aside>
+</main>
+
+<script>
+(() => {
+"use strict";
+const $ = (id) => document.getElementById(id);
+const TAGS = ["works", "drags", "moved me", "groove!", "repetitive", "too loud", "too quiet", "too busy", "too thin", "confusing", "more of this",
+  "sounds fake", "off-time", "muddy", "harsh", "phasey", "lifeless"];
+const LANE_ORDER = ["hp", "r", "K", "lyap", "period", "sep", "harm", "friction", "tension", "beat"];
+
+let index = null, song = null, songMeta = null, score = null;
+let mode = "master", playing = false, pos = 0, raf = 0;
+const players = {}; let master = null;
+const mute = new Set(), solo = new Set();
+let notes = [], db = null, user = null, myId = null;
+const pickedTags = new Set(), pickedLayers = new Set();
+
+// ---------- helpers
+const fmt = (t, tenths) => { t = Math.max(0, t); const m = Math.floor(t / 60), s = t - m * 60;
+  return m + ":" + (tenths ? s.toFixed(1).padStart(4, "0") : String(Math.floor(s)).padStart(2, "0")); };
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function isDark() { const c = css("--bg"); const n = parseInt(c.slice(1), 16); return ((n >> 16) + ((n >> 8) & 255) + (n & 255)) / 3 < 110; }
+function layerColor(hex) { if (isDark()) return hex; const n = parseInt(hex.slice(1), 16); const k = 0.62;
+  const r = Math.round((n >> 16) * k), g = Math.round(((n >> 8) & 255) * k), b = Math.round((n & 255) * k);
+  return `rgb(${r},${g},${b})`; }
+function barBeat(t) { const beats = t * score.bpm / 60, bpb = score.beats_per_bar || 4;
+  return `${Math.floor(beats / bpb) + 1}.${Math.floor(beats % bpb) + 1}`; }
+function hz(v) { return v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1).replace(/\.0$/, "") + " kHz" : Math.round(v) + " Hz"; }
+function sectionAt(t) { return score.sections.find(s => t >= s.start && t < s.end) || score.sections[score.sections.length - 1]; }
+function laneVal(l, t) { const ts = l.t; let lo = 0, hi = ts.length - 1; while (lo < hi) { const m = (lo + hi + 1) >> 1; if (ts[m] <= t) lo = m; else hi = m - 1; } return l.v[lo]; }
+
+// ---------- load
+async function boot() {
+  try {
+    index = await (await fetch("songs.json")).json();
+  } catch (e) { $("title").textContent = "Couldn't load the song list"; return; }
+  index.songs.forEach(s => { if (!s.status) s.status = s.score ? "written" : "planned"; });
+  renderTracklist();
+  const first = index.songs.find(s => s.status === "written");
+  if (first) await loadSong(first);
+  initDb();
+}
+
+function renderTracklist() {
+  if (!index.album) return;
+  $("albumpanel").hidden = false;
+  $("album-title").textContent = index.album.title;
+  if (index.album.eyebrow) $("album-eyebrow").textContent = index.album.eyebrow;
+  $("album-stmt").textContent = index.album.statement || "";
+  const host = $("tracks"); host.innerHTML = "";
+  index.songs.forEach(s => {
+    const li = document.createElement("li");
+    const b = document.createElement("button"); b.className = "track"; b.dataset.status = s.status;
+    b.innerHTML = `<span class="tn"></span><span class="tt"></span><span class="tb"></span>`;
+    b.querySelector(".tn").textContent = s.n ?? "";
+    const tt = b.querySelector(".tt"); tt.textContent = s.title;
+    if (s.status === "planned") { const p = document.createElement("span"); p.className = "pl"; p.textContent = "planned"; tt.appendChild(p); }
+    const f = document.createElement("span"); f.className = "tf"; f.textContent = s.status === "planned" ? `${s.fusion} · ${s.intro}` : s.fusion; tt.appendChild(f);
+    b.querySelector(".tb").textContent = s.bpm ? s.bpm + " BPM" : "";
+    if (s.status === "written") b.addEventListener("click", () => loadSong(s)); else b.disabled = true;
+    s._btn = b;
+    const row = document.createElement("div"); row.className = "trow"; row.appendChild(b);
+    if (s.status === "written" && s.mix) row.appendChild(dlButton(s));
+    li.appendChild(row);
+    li.appendChild(takeRow(s));
+    host.appendChild(li);
+  });
+}
+
+// ---------- MP3 download: the viewer's save prompt (the downloads capability); a plain link outside claude.ai
+let dlApi;
+async function getDownloads() {
+  if (dlApi === undefined) { try { dlApi = window.claude?.use ? await window.claude.use("downloads") : null; } catch (e) { dlApi = null; } }
+  return dlApi;
+}
+function dlName(s) {
+  const many = (index.songs || []).filter(x => x.mix).length > 1;
+  return `${many && s.n != null ? String(s.n).padStart(2, "0") + " " : ""}${s.title} - Electric Bat.mp3`.replace(/[\\/:*?"<>|]/g, "");
+}
+function dlButton(s) {
+  const d = document.createElement("button"); d.type = "button"; d.className = "dl";
+  d.setAttribute("aria-label", `Download ${s.title} as MP3`); d.title = `Download ${s.title} (MP3)`;
+  d.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>MP3</span>`;
+  d.addEventListener("click", () => downloadSong(s, d));
+  return d;
+}
+function setDl(d, state, msg) {
+  d.dataset.state = state; d.querySelector("span").textContent = state === "busy" ? "…" : state === "done" ? "Saved" : state === "err" ? "Failed" : "MP3";
+  d.title = msg || `Download (MP3)`;
+  clearTimeout(d._t); if (state === "done" || state === "err") d._t = setTimeout(() => setDl(d, "", ""), 4000);
+}
+async function downloadSong(s, d) {
+  if (d.dataset.state === "busy") return;
+  const name = dlName(s);
+  setDl(d, "busy", "Preparing the file…");
+  try {
+    const api = await getDownloads();
+    if (!api) {                       // outside the claude.ai viewer: an ordinary link
+      const a = document.createElement("a"); a.href = s.mix; a.download = name; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove(); setDl(d, "", ""); return;
+    }
+    const r = await fetch(s.mix);
+    if (!r.ok) throw { code: "fetch", message: `the file did not load (HTTP ${r.status})` };
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    try { await api.save({ filename: name, data: new Blob([bytes]) }); }
+    catch (e) {                       // the viewer's save prompt takes no .mp3: hand over a zip with the MP3 in it
+      if (!e || e.code !== "rejected_extension") throw e;
+      await api.save({ filename: name.replace(/\.mp3$/, " (mp3).zip"), data: zipOne(name, bytes) });
+    }
+    setDl(d, "done", "Saved");
+  } catch (e) {
+    const code = e && e.code;
+    if (code === "declined") setDl(d, "", "");
+    else if (code === "rate_limited") setDl(d, "err", "A save prompt is already open.");
+    else setDl(d, "err", "Couldn't save: " + ((e && e.message) || code || "unknown error"));
+  }
+}
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipOne(name, data) {          // one stored (uncompressed) file: an MP3 does not compress
+  const nb = new TextEncoder().encode(name), crc = crc32(data), n = data.length, dt = new Date();
+  const time = (dt.getHours() << 11) | (dt.getMinutes() << 5) | (dt.getSeconds() >> 1);
+  const date = ((dt.getFullYear() - 1980) << 9) | ((dt.getMonth() + 1) << 5) | dt.getDate();
+  const lh = new DataView(new ArrayBuffer(30)), cd = new DataView(new ArrayBuffer(46)), end = new DataView(new ArrayBuffer(22));
+  [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, n, 4], [22, n, 4], [26, nb.length, 2], [28, 0, 2]]
+    .forEach(([o, v, w]) => w === 4 ? lh.setUint32(o, v, true) : lh.setUint16(o, v, true));
+  [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, n, 4], [24, n, 4], [28, nb.length, 2], [42, 0, 4]]
+    .forEach(([o, v, w]) => w === 4 ? cd.setUint32(o, v, true) : cd.setUint16(o, v, true));
+  [[0, 0x06054b50, 4], [8, 1, 2], [10, 1, 2], [12, 46 + nb.length, 4], [16, 30 + nb.length + n, 4]]
+    .forEach(([o, v, w]) => w === 4 ? end.setUint32(o, v, true) : end.setUint16(o, v, true));
+  return new Blob([lh, nb, data, cd, nb, end], { type: "application/zip" });
+}
+
+// ---------- rebuild and request queue (db "requests"; Claude renders them in the workspace)
+let requests = [];
+function latestRequest(s) {
+  return requests.filter(r => r.track === s.n).sort((a, b) => (b.at || 0) - (a.at || 0))[0];
+}
+function takeRow(s) {
+  const row = document.createElement("div"); row.className = "take"; row.dataset.n = s.n;
+  const written = s.status === "written";
+  const info = document.createElement("span");
+  info.textContent = written ? `Take ${s.take || 1}${s.seed != null ? " · seed " + s.seed : ""}` : "Not written yet";
+  const btn = document.createElement("button"); btn.className = "rb"; btn.type = "button";
+  btn.textContent = written ? "Rebuild" : "Write this one";
+  const st = document.createElement("span"); st.className = "st";
+  const form = document.createElement("form"); form.hidden = true;
+  const inp = document.createElement("input"); inp.maxLength = 300;
+  inp.placeholder = written ? "What sounded off? (optional)" : "Anything you want in it? (optional)";
+  const go = document.createElement("button"); go.className = "rb"; go.type = "submit"; go.textContent = written ? "Queue rebuild" : "Ask for it";
+  form.append(inp, go);
+  btn.addEventListener("click", () => { form.hidden = !form.hidden; if (!form.hidden) inp.focus(); });
+  form.addEventListener("submit", async ev => { ev.preventDefault(); await queueRequest(s, written ? "rebuild" : "compose", inp.value.trim(), null, st, go); inp.value = ""; form.hidden = true; });
+  row.append(info, btn, st, form);
+  if (written && (s.takes || []).length > 1) {
+    const d = document.createElement("details"); const sm = document.createElement("summary"); sm.textContent = `Earlier takes (${s.takes.length - 1})`; d.appendChild(sm);
+    s.takes.slice(0, -1).reverse().forEach(t => {
+      const r = document.createElement("div"); r.className = "tk";
+      const l = document.createElement("span"); l.textContent = `Take ${t.take} · seed ${t.seed}${t.note ? " · " + t.note : ""}`;
+      const back = document.createElement("button"); back.type = "button"; back.textContent = "Go back to it";
+      back.addEventListener("click", () => queueRequest(s, "restore", `back to take ${t.take}`, t.seed, st, back));
+      r.append(l, back); d.appendChild(r); });
+    row.appendChild(d);
+  }
+  paintRequest(s, st);
+  return row;
+}
+function paintRequest(s, st) {
+  const r = latestRequest(s); if (!st) return;
+  if (!r) { st.textContent = ""; return; }
+  st.textContent = r.status === "queued" ? (r.kind === "compose" ? "Asked for · I'll write it when I'm next working" : "Rebuild queued · I'll render it when I'm next working")
+    : r.status === "building" ? "Rendering now…"
+    : r.status === "done" ? (r.result || "Done") : r.status === "declined" ? (r.result || "Not done") : "";
+}
+async function queueRequest(s, kind, note, seed, st, btn) {
+  if (!db) { st.textContent = "Sign in to queue requests."; return; }
+  const open = latestRequest(s);
+  if (open && (open.status === "queued" || open.status === "building")) { st.textContent = "Already queued."; return; }
+  btn.disabled = true;
+  try {
+    await db.collection("requests").add({ kind, track: s.n, title: s.title, note, seed, status: "queued", at: Date.now(), by: myId || "anon" });
+    st.textContent = "Queued.";
+  } catch (e) { st.textContent = e.code === "not_granted" || e.code === "permission_denied" ? "This share can't queue requests." : "Couldn't queue it. Try again."; }
+  btn.disabled = false;
+}
+function repaintRequests() {
+  document.querySelectorAll(".take").forEach(row => { const s = index.songs.find(x => String(x.n) === row.dataset.n); if (s) paintRequest(s, row.querySelector(".st")); });
+}
+
+async function loadSong(entry) {
+  stop(); songMeta = entry;
+  index.songs.forEach(s => s._btn && s._btn.setAttribute("aria-current", s === entry ? "true" : "false"));
+  score = await (await fetch(songMeta.score)).json();
+  $("title").textContent = score.title;
+  $("subtitle").textContent = score.subtitle;
+  $("statement").textContent = score.statement;
+  const intro = songMeta.intro || score.intro || "";
+  $("introbox").hidden = !intro; $("intro").textContent = intro;
+  $("intro-label").textContent = songMeta.n ? `Track ${songMeta.n} · introduction` : "Introduction";
+  $("facts").innerHTML = "";
+  [["Tempo", score.bpm + " BPM"], ["Key", score.key], ["Length", fmt(score.duration)], ["Layers", score.layers.length],
+   ["Sections", score.sections.length], ...(score.ear ? [["Perceived centre", hz(score.ear.perceived_centre_hz)], ["Presence 2–6 kHz", Math.round(score.ear.a_share_presence * 100) + "%"]] : []),
+   ...(score.dj ? [["Mix key", score.dj.camelot], ["DJ intro / outro", `${score.dj.intro_bars} / ${score.dj.outro_bars} bars`]] : []),
+   ["Composed by", songMeta.model || "Claude"]].forEach(([k, v]) => {
+    const s = document.createElement("span"); s.innerHTML = `${k} <b></b>`; s.querySelector("b").textContent = v; $("facts").appendChild(s); });
+  const G = score.geometry; $("geopanel").hidden = !G; if (G) $("geo-image").textContent = G.image || "";
+  $("geo-tz").parentElement.style.display = (G && G.tonnetz && G.tonnetz.length) ? "" : "none";
+  buildLyrics();
+  buildPlayers(); buildLanes(); setView(0, score.duration, false); drawAll(); setPos(0); renderNotes(); buildLayerPick();
+}
+
+// ---------- lyrics: a sheet that seeks, and the line being sung in the transport
+let lyLines = [], lyCur = -2;
+function buildLyrics() {
+  lyLines = ((take4 && (score.lyrics_compare || score.lyrics_take4)) || score.lyrics || []).slice().sort((a, b) => a.t - b.t); lyCur = -2;
+  $("lyricspanel").hidden = !lyLines.length; $("lyricbar").hidden = !lyLines.length;
+  $("ly-concept").textContent = songMeta.concept || "";
+  const ol = $("ly-list"); ol.innerHTML = "";
+  const names = Object.fromEntries(score.layers.map(L => [L.id, L.name]));
+  lyLines.forEach((ln, i) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.setAttribute("aria-label", `Play from ${fmt(ln.t)}: ${ln.text}`);
+    const t = document.createElement("span"); t.className = "t"; t.textContent = fmt(ln.t);
+    const tx = document.createElement("span"); tx.textContent = ln.text;
+    const w = document.createElement("span"); w.className = "w"; w.textContent = names[ln.layer] || ""; tx.prepend(w);
+    b.append(t, tx); b.addEventListener("click", () => setPos(Math.max(0, ln.t - 0.3)));
+    li.appendChild(b); ol.appendChild(li); ln._li = li;
+  });
+}
+function updateLyrics() {
+  if (!lyLines.length) return;
+  let i = -1;
+  for (let k = 0; k < lyLines.length; k++) if (lyLines[k].t - 0.15 <= pos) i = k; else break;
+  const on = i >= 0 && pos <= (lyLines[i].end || lyLines[i].t + 6) + 0.6 ? i : -1;
+  if (on === lyCur) return;
+  if (lyCur >= 0 && lyLines[lyCur]) lyLines[lyCur]._li.classList.remove("cur");
+  lyCur = on;
+  const nx = lyLines[i + 1];
+  if (on >= 0) { const L = lyLines[on]; L._li.classList.add("cur");
+    const names = Object.fromEntries(score.layers.map(x => [x.id, x.name]));
+    $("ly-who").textContent = names[L.layer] || ""; $("ly-now").textContent = L.text; }
+  else { $("ly-who").textContent = ""; $("ly-now").textContent = nx ? "" : ""; }
+  $("ly-next").textContent = nx && nx.t - pos < 20 ? `next: ${nx.text}` : "";
+}
+
+// ---------- audio
+// The master streams through one <audio> element. Stems are fetched, decoded and started on the same
+// Web Audio clock, sample-aligned, so they never drift apart and never need re-seeking (take 1 synced
+// separate <audio> elements every 0.7 s, which could click and smear the drums).
+let ctx = null, srcs = [], t0 = 0, stemLoad = null, playReq = 0;
+const bufs = {}, gains = {};
+function ensureCtx() { if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) ctx = new AC(); } return ctx; }
+function buildPlayers() {
+  stop(); stopStems(); stemLoad = null;
+  for (const k in bufs) delete bufs[k];
+  for (const k in gains) { try { gains[k].disconnect(); } catch (e) {} delete gains[k]; }
+  if (master) { master.pause(); master.src = ""; }
+  master = new Audio(); master.preload = "auto"; master.src = masterSrc();
+  $("m-take4").hidden = !cmpSrc(); $("m-take4").textContent = songMeta.compare_label || "Take 4";
+  master.addEventListener("waiting", () => setStatus("buffering…")); master.addEventListener("playing", () => setStatus(""));
+  master.addEventListener("ended", () => { if (playing && mode === "master") stop(); });
+  applyMix();
+}
+function setStatus(t) { $("status").textContent = t; }
+// The comparison (the previous take) is the same band through the same master chain, so an A/B hears only the voice.
+let take4 = false;
+function cmpSrc() { return songMeta.compare || songMeta.take4 || null; }
+function masterSrc() { return take4 && cmpSrc() ? cmpSrc() : songMeta.mix; }
+function loadStems() {
+  if (stemLoad) return stemLoad;
+  const meta = songMeta, layers = score.layers;
+  if (!ensureCtx()) return Promise.reject(new Error("no Web Audio"));
+  setStatus("loading stems…");
+  stemLoad = Promise.all(layers.map(async L => {
+    const r = await fetch(meta.stems[L.id]); if (!r.ok) throw new Error("stem " + L.id);
+    const ab = await r.arrayBuffer();
+    const buf = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej));
+    if (songMeta === meta) bufs[L.id] = buf;
+  })).then(() => { if (songMeta === meta) setStatus(""); },
+           e => { if (songMeta === meta) { stemLoad = null; setStatus("stems didn't load; playing the master"); } throw e; });
+  return stemLoad;
+}
+function stopStems() { for (const x of srcs) { try { x.stop(); } catch (e) {} } srcs = []; }
+function stemPos() { return ctx ? ctx.currentTime - t0 : pos; }
+function startStems(at) {
+  stopStems();
+  const when = ctx.currentTime + 0.06; t0 = when - at;
+  for (const L of score.layers) {
+    const b = bufs[L.id]; if (!b) continue;
+    let g = gains[L.id]; if (!g) { g = ctx.createGain(); g.connect(ctx.destination); gains[L.id] = g; }
+    const x = ctx.createBufferSource(); x.buffer = b; x.connect(g);
+    if (at < b.duration - 0.02) { x.start(when, at); srcs.push(x); }
+  }
+  applyMix(true);
+}
+
+// ---------- transport
+async function play() {
+  const my = ++playReq;
+  if (mode === "stems") {
+    if (!ensureCtx()) { setMode("master"); return; }
+    if (ctx.state === "suspended") { try { await ctx.resume(); } catch (e) {} }
+    try { await loadStems(); } catch (e) { if (my === playReq) { setMode("master"); play(); } return; }
+    if (my !== playReq) return;
+    startStems(pos);
+  } else {
+    if (master.readyState < 1) await Promise.race([new Promise(r => master.addEventListener("loadedmetadata", r, { once: true })), new Promise(r => setTimeout(r, 8000))]);
+    if (my !== playReq) return;
+    try { master.currentTime = pos; } catch (e) {}
+    try { await master.play(); } catch (e) { setStatus("tap play again to start audio"); return; }
+    if (my !== playReq) { master.pause(); return; }
+  }
+  playing = true; $("play").setAttribute("aria-label", "Pause"); $("playicon").innerHTML = '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+}
+function stop() {
+  playReq++;
+  if (playing && mode === "stems" && ctx) pos = Math.min(stemPos(), score ? score.duration : 0);
+  playing = false; stopStems(); if (master) master.pause();
+  $("play").setAttribute("aria-label", "Play"); $("playicon").innerHTML = '<path d="M7 4v16l13-8z"/>'; cancelAnimationFrame(raf);
+}
+function tick() {
+  pos = mode === "stems" ? stemPos() : master.currentTime;
+  if (mode === "stems" && pos >= score.duration - 0.02) { pos = score.duration; stop(); updatePos(); return; }
+  updatePos(); raf = requestAnimationFrame(tick);
+}
+function setPos(t) {
+  pos = Math.max(0, Math.min(t, score.duration - 0.05));
+  if (mode === "stems") { if (playing && ctx) startStems(pos); }
+  else if (master) { try { master.currentTime = pos; } catch (e) {} }
+  updatePos();
+}
+$("play").addEventListener("click", () => playing ? stop() : play());
+document.addEventListener("keydown", e => { if (e.code === "Space" && !/TEXTAREA|INPUT|SELECT|BUTTON/.test(e.target.tagName)) { e.preventDefault(); playing ? stop() : play(); } });
+function setMode(m) {
+  const want4 = m === "take4" && !!cmpSrc(), mm = want4 ? "master" : m;
+  if (mm === mode && want4 === take4) return; const was = playing; stop(); mode = mm;
+  if (want4 !== take4) { take4 = want4; if (master) { master.src = masterSrc(); } buildLyrics(); drawTimeline(); }
+  $("m-stems").setAttribute("aria-pressed", mode === "stems"); $("m-master").setAttribute("aria-pressed", mode === "master" && !take4);
+  $("m-take4").setAttribute("aria-pressed", mode === "master" && take4);
+  setPos(pos);
+  if (m === "stems") { ensureCtx(); loadStems().catch(() => {}); }
+  if (was) play();
+}
+$("m-stems").addEventListener("click", () => setMode("stems"));
+$("m-master").addEventListener("click", () => setMode("master"));
+$("m-take4").addEventListener("click", () => setMode("take4"));
+
+function applyMix(now) {
+  for (const L of score.layers) {
+    const off = mute.has(L.id) || (solo.size && !solo.has(L.id));
+    const g = gains[L.id];
+    if (g) { const v = off ? 0 : 1; if (now) g.gain.value = v; else g.gain.setTargetAtTime(v, ctx.currentTime, 0.015); }
+    const lane = document.querySelector(`.lane[data-id="${L.id}"]`); if (lane) lane.classList.toggle("dim", off);
+  }
+}
+
+// ---------- position-driven UI
+let lastSec = null, lastFm = null;
+function updatePos() {
+  const f = pos / score.duration;
+  document.documentElement.style.setProperty("--ph", f.toFixed(5));
+  $("clock").innerHTML = `${fmt(pos, true)} <small>/ ${fmt(score.duration)}</small>`;
+  $("note-pin").textContent = "Pin at bar " + barBeat(pos);
+  // readout
+  const parts = [];
+  for (const id of LANE_ORDER) { const l = score.lanes.find(x => x.id === id); if (!l) continue; const v = laneVal(l, pos);
+    const shown = id === "hp" ? (+v).toFixed(0) + "%" : id === "period" ? (v === 0 ? "∞ (chaos)" : v) : id === "sep" ? "10^" + v.toFixed(1) : id === "beat" ? (+v).toFixed(0) : id === "harm" || id === "tension" || id === "friction" ? (+v).toFixed(2) : (+v).toFixed(id === "r" ? 4 : 2);
+    parts.push(`${l.name.split(" (")[0]} <b>${shown}</b>`); }
+  $("readout").innerHTML = parts.join("");
+  // now panel
+  const s = sectionAt(pos);
+  if (s !== lastSec) { lastSec = s;
+    const i = score.sections.indexOf(s);
+    $("now-pos").textContent = `Section ${i + 1} of ${score.sections.length} · bars ${s.start_bar + 1}–${s.start_bar + s.bars}`;
+    $("now-name").textContent = s.name; $("now-intent").textContent = s.intent; $("now-feeling").textContent = s.feeling;
+    $("now-energy").style.width = Math.round(s.energy * 100) + "%";
+    const lc = $("now-layers"); lc.innerHTML = "";
+    for (const id of s.layers) { const L = score.layers.find(l => l.id === id); if (!L) continue;
+      const sp = document.createElement("span"); sp.innerHTML = `<i class="chip" style="--c:${layerColor(L.color)}"></i>`; sp.append(L.name); lc.appendChild(sp); }
+  }
+  if (score.beats) { const bi = Math.floor(pos * score.bpm / 60 / (score.beats_per_bar || 4));
+    const B = score.beats[Math.min(bi, score.beats.length - 1)];
+    if (B) $("now-beat").textContent = `Bar ${B.bar} beat: ${B.feeling} · ${B.kind}` + (B.score != null ? ` · my score ${B.score.toFixed(0)}` : ""); }
+  const nx = score.sections[score.sections.indexOf(s) + 1];
+  if (s !== lastFm) { lastFm = s; const mv = $("now-moves"); mv.innerHTML = "";
+    (s.moves || []).forEach(m => { const li = document.createElement("li"); li.textContent = m; mv.appendChild(li); });
+    drawFmap(); }
+  $("now-next").textContent = nx ? `Next: ${nx.name} in ${fmt(nx.start - pos)}` : "Last section";
+  const ev = [...score.annotations].reverse().find(a => a.t <= pos && pos - a.t < 24);
+  $("now-event").hidden = !ev; if (ev) $("now-event").textContent = ev.text;
+  updateLyrics();
+  if (playing) followPlayhead();
+  lanePlayhead();
+  drawGeo();
+}
+
+// ---------- geometry: the dancers' ring and the Tonnetz
+const PC = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+function sizeCanvas(cv) { const dpr = window.devicePixelRatio || 1, w = cv.clientWidth;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(w * dpr); }
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, w); return [g, w]; }
+function drawGeo() {
+  const G = score && score.geometry; if (!G || $("geopanel").hidden) return;
+  const fg = css("--fg"), muted = css("--muted"), accent = css("--accent"), line = css("--line");
+  if (G.ring) {
+    const [g, W] = sizeCanvas($("geo-ring")), Rg = G.ring, n = Rg.n, cx = W / 2, cy = W / 2, rad = W * 0.38;
+    const fb = Math.max(0, Math.min(pos / Rg.beat_s, Rg.angles.length - 1.001)), i0 = Math.floor(fb), u = fb - i0;
+    const A0 = Rg.angles[i0], A1 = Rg.angles[Math.min(i0 + 1, Rg.angles.length - 1)];
+    const ang = A0.map((a, k) => { let d = A1[k] - a; d -= Math.round(d); return a + d * u; });
+    const r = Rg.r[i0] + (Rg.r[Math.min(i0 + 1, Rg.r.length - 1)] - Rg.r[i0]) * u;
+    const P = ang.map(a => [cx + rad * Math.sin(2 * Math.PI * a), cy - rad * Math.cos(2 * Math.PI * a)]);
+    g.strokeStyle = line; g.lineWidth = 1; g.beginPath(); g.arc(cx, cy, rad, 0, 2 * Math.PI); g.stroke();
+    g.fillStyle = muted; g.font = "10px ui-monospace, monospace"; g.textAlign = "center";
+    g.fillText("front", cx, cy - rad - 10); g.fillText("behind", cx, cy + rad + 18);
+    g.fillText("L", cx - rad - 12, cy + 3); g.fillText("R", cx + rad + 12, cy + 3);
+    // the star {n/k}: dancer i joined to dancer i+k; a clean octagram only when they agree
+    g.strokeStyle = accent; g.globalAlpha = 0.25 + 0.6 * r * r; g.lineWidth = 1.2; g.beginPath();
+    for (let k = 0; k < n; k++) { const a = P[k], b = P[(k + Rg.star) % n]; g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); }
+    g.stroke(); g.globalAlpha = 1;
+    // order parameter: the mean of the dancers' phases (their angle minus their own corner)
+    let zx = 0, zy = 0; ang.forEach((a, k) => { const ph = 2 * Math.PI * (a - k / n); zx += Math.sin(ph) / n; zy += Math.cos(ph) / n; });
+    g.strokeStyle = fg; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + rad * zx, cy - rad * zy); g.stroke();
+    g.fillStyle = fg; g.beginPath(); g.arc(cx, cy, 3, 0, 2 * Math.PI); g.fill();
+    P.forEach(([x, y], k) => { g.fillStyle = k === 0 ? accent : fg; g.beginPath(); g.arc(x, y, k === 0 ? 6 : 5, 0, 2 * Math.PI); g.fill(); });
+    $("geo-ring-cap").innerHTML = `Eight dancers, each placed by its phase. r = <b>${r.toFixed(2)}</b> · ${r > 0.95 ? "locked: the octagram {8/3}" : r > 0.6 ? "falling into step" : "strangers"}. The arrow is the order parameter.`;
+  }
+  if (G.tree) {
+    const [g, W] = sizeCanvas($("geo-ring")), Tr = G.tree, [r0, r1] = Tr.r_range, pad = 18;
+    const X = r => pad + (r - r0) / (r1 - r0) * (W - 2 * pad), Y = x => W - pad - x * (W - 2 * pad);
+    g.fillStyle = muted; g.globalAlpha = 0.55;
+    for (let i = 0; i < Tr.r.length; i++) g.fillRect(X(Tr.r[i]), Y(Tr.x[i]), 1.2, 1.2);
+    g.globalAlpha = 1;
+    const lr = score.lanes.find(l => l.id === "r"), lx = score.lanes.find(l => l.id === "x");
+    const rNow = lr ? laneVal(lr, pos) : r0;
+    g.strokeStyle = accent; g.lineWidth = 1.5; g.beginPath(); g.moveTo(X(rNow), pad); g.lineTo(X(rNow), W - pad); g.stroke();
+    if (lx) { g.fillStyle = fg;
+      for (let i = 0; i < lx.t.length; i++) { const dt = pos - lx.t[i]; if (dt < 0 || dt > 2.5) continue;
+        g.globalAlpha = 1 - dt / 2.5; g.beginPath(); g.arc(X(rNow), Y(lx.v[i]), 3.2, 0, 2 * Math.PI); g.fill(); }
+      g.globalAlpha = 1; }
+    g.fillStyle = muted; g.font = "10px ui-monospace, monospace"; g.textAlign = "left";
+    [3.0, 3.449, 3.5699, 3.8284].forEach(rv => { g.fillText(rv === 3.5699 ? "∞" : rv === 3.8284 ? "3" : rv === 3.449 ? "4" : "2", X(rv) + 2, pad + 8); });
+    g.fillText("r →", W - pad - 22, W - 4);
+    const ln = score.lanes.find(l => l.id === "period"), per = ln ? laneVal(ln, pos) : null;
+    $("geo-ring-cap").innerHTML = `The bifurcation tree. r = <b>${rNow.toFixed(3)}</b> · ` +
+      (per === 0 ? "chaos: the orbit never repeats" : per ? `period <b>${per}</b>` : "") + ". Bright dots: the twins' latest notes.";
+  }
+  if (G.ca) {                       // Rule 90: the triangle, rows lit up to the one sounding now
+    const [g, W] = sizeCanvas($("geo-ring")), C = G.ca, w = C.width, n = 2 * w + 1, pad = 14;
+    let i = -1; for (let k = 0; k < C.events.length; k++) { if (C.events[k][0] <= pos + 0.02) i = k; else break; }
+    const ev = i >= 0 ? C.events[i] : null, cur = ev ? ev[1] : -1;
+    const rows = []; let row = new Array(n).fill(0); row[w] = 1;
+    for (let r = 0; r < 8; r++) { rows.push(row.slice()); const nx = new Array(n).fill(0);
+      for (let k = 1; k < n - 1; k++) nx[k] = row[k - 1] ^ row[k + 1]; row = nx; }
+    const cw = (W - 2 * pad) / n, ch = Math.min(cw, (W - 2 * pad) / 8), y0 = (W - 8 * ch) / 2;
+    for (let r = 0; r < 8; r++) for (let k = 0; k < n; k++) {
+      const x = pad + k * cw, y = y0 + r * ch;
+      g.strokeStyle = line; g.lineWidth = 1; g.strokeRect(x + 1, y + 1, cw - 2, ch - 2);
+      if (!rows[r][k]) continue;
+      if (r === cur) { g.fillStyle = accent; g.globalAlpha = 1; }
+      else if (r < cur) { g.fillStyle = fg; g.globalAlpha = 0.45; }
+      else { g.fillStyle = muted; g.globalAlpha = 0.12; }
+      g.fillRect(x + 2, y + 2, cw - 4, ch - 4); g.globalAlpha = 1;
+    }
+    g.fillStyle = muted; g.font = "10px ui-monospace, monospace"; g.textAlign = "center";
+    g.fillText("left voice", pad + w * cw * 0.5, y0 + 8 * ch + 14); g.fillText("right voice", W - pad - w * cw * 0.5, y0 + 8 * ch + 14);
+    $("geo-ring-cap").innerHTML = `Rule 90 from one lit cell: a cell lights when exactly one neighbour above was lit. ` +
+      (cur >= 0 ? `Row <b>${cur + 1}</b> is sounding: <b>${ev[2].length}</b> cell${ev[2].length === 1 ? "" : "s"}, each a plucked string.` : "");
+  }
+  if (G.attractor) {               // Lorenz: the butterfly seen from the side, the point now and its trail
+    const [g, W] = sizeCanvas($("geo-ring")), A = G.attractor, pad = 16;
+    const X = x => W / 2 + x / 24 * (W / 2 - pad), Y = z => W - pad - z / 52 * (W - 2 * pad);
+    g.strokeStyle = muted; g.globalAlpha = 0.3; g.lineWidth = 0.7; g.beginPath();
+    A.xz.forEach(([x, z], j) => j ? g.lineTo(X(x), Y(z)) : g.moveTo(X(x), Y(z)));
+    g.stroke(); g.globalAlpha = 1;
+    const k = Math.max(0, Math.min(A.xz.length - 1, Math.floor(pos / (A.step_s * 2))));
+    g.strokeStyle = accent; g.lineWidth = 1.6; g.beginPath();
+    for (let j = Math.max(0, k - 16); j <= k; j++) { const [x, z] = A.xz[j]; j === Math.max(0, k - 16) ? g.moveTo(X(x), Y(z)) : g.lineTo(X(x), Y(z)); }
+    g.stroke();
+    const S = A.split, inSplit = S && pos >= S.start_s && pos < S.start_s + S.a.length * A.step_s * 2;
+    let cap;
+    if (inSplit) {
+      const j = Math.floor((pos - S.start_s) / (A.step_s * 2)), a = S.a[j], b = S.b[j];
+      [[a, accent], [b, fg]].forEach(([p, c]) => { g.fillStyle = c; g.beginPath(); g.arc(X(p[0]), Y(p[1]), 5, 0, 2 * Math.PI); g.fill(); });
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      cap = `Two starting points a ten-thousandth apart: the twins. Distance now <b>${d < 0.01 ? "&lt; 0.01" : d.toFixed(2)}</b>.`;
+    } else {
+      const [x, z] = A.xz[k]; g.fillStyle = accent; g.beginPath(); g.arc(X(x), Y(z), 5, 0, 2 * Math.PI); g.fill();
+      cap = `The Lorenz attractor, seen from the side. The point is on the <b>${x >= 0 ? "right wing: twin A" : "left wing: twin B"}</b>; every flip between wings is a glitch.`;
+    }
+    g.fillStyle = muted; g.font = "10px ui-monospace, monospace"; g.textAlign = "center";
+    g.fillText("left wing", X(-12), W - 4); g.fillText("right wing", X(12), W - 4);
+    $("geo-ring-cap").innerHTML = cap;
+  }
+  if (G.tonnetz && G.tonnetz.length) {
+    const [g, W] = sizeCanvas($("geo-tz")), T = G.tonnetz;
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    T.forEach(c => c.tri.forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }));
+    const pad = 0.7, sc = (W - 24) / Math.max(x1 - x0 + 2 * pad, y1 - y0 + 2 * pad);
+    const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, X = x => W / 2 + (x - mx) * sc, Y = y => W / 2 - (y - my) * sc;
+    // lattice nodes: x = a + b/2, y = b·√3/2, pitch class 7a + 4b
+    const h = Math.sqrt(3) / 2, cur = T.findIndex(c => pos >= c.t && pos < c.end), ci = cur < 0 ? T.length - 1 : cur;
+    const inside = (x, y) => x >= x0 - pad && x <= x1 + pad && y >= y0 - pad && y <= y1 + pad;
+    const nodes = [];
+    for (let b = Math.floor((y0 - pad) / h) - 1; b <= Math.ceil((y1 + pad) / h) + 1; b++)
+      for (let a = Math.floor(x0 - pad - b / 2) - 1; a <= Math.ceil(x1 + pad - b / 2) + 1; a++) {
+        const x = a + b / 2, y = b * h; if (inside(x, y)) nodes.push([x, y, ((7 * a + 4 * b) % 12 + 12) % 12]); }
+    // the lattice: each note joined to its fifth (→), major third (↗) and minor third (↘)
+    g.strokeStyle = line; g.lineWidth = 1; g.beginPath();
+    nodes.forEach(([x, y]) => [[1, 0], [0.5, h], [0.5, -h]].forEach(([dx, dy]) => { if (inside(x + dx, y + dy)) { g.moveTo(X(x), Y(y)); g.lineTo(X(x + dx), Y(y + dy)); } }));
+    g.stroke();
+    // the path: every chord visited so far, the line between their centres, and the current triangle
+    const cen = c => [c.tri.reduce((s, p) => s + p[0], 0) / 3, c.tri.reduce((s, p) => s + p[1], 0) / 3];
+    T.forEach((c, k) => { if (k > ci) return; g.fillStyle = accent; g.globalAlpha = k === ci ? 0.55 : 0.08;
+      g.beginPath(); c.tri.forEach(([x, y], j) => j ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y))); g.closePath(); g.fill(); });
+    g.globalAlpha = 0.6; g.strokeStyle = fg; g.lineWidth = 1.2; g.beginPath();
+    T.slice(0, ci + 1).forEach((c, k) => { const [x, y] = cen(c); k ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)); }); g.stroke(); g.globalAlpha = 1;
+    // note names on top; the current chord's three notes stand out
+    const C = T[ci], prev = T[ci - 1], near = (x, y) => C.tri.some(([u, v]) => Math.abs(u - x) < 0.01 && Math.abs(v - y) < 0.01);
+    g.font = "11px ui-monospace, monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+    nodes.forEach(([x, y, pc]) => { const on = near(x, y); g.fillStyle = css("--sunk"); g.beginPath(); g.arc(X(x), Y(y), 9, 0, 2 * Math.PI); g.fill();
+      g.fillStyle = on ? fg : muted; g.font = (on ? "600 " : "") + "11px ui-monospace, monospace"; g.fillText(PC[pc], X(x), Y(y)); });
+    $("geo-tz-cap").innerHTML = `Harmony on the Tonnetz (fifths across, major thirds up). Now <b>${C.name}</b>` +
+      (C.move ? ` · ${C.move}` : "") + (prev ? ` · from ${prev.name}` : "") + ".";
+  }
+}
+
+// ---------- timeline drawing
+const TL = { secH: 30, bandH: 9, laneH: 34, gap: 8, lyrH: 18, lyr: [] };
+// the voices that sing in this song (or in the take being compared), in score order
+function voiceLayers() { const ids = new Set(lyLines.map(l => l.layer)); return score ? score.layers.filter(L => ids.has(L.id)) : []; }
+function tlHeight() { const n = score ? LANE_ORDER.filter(id => score.lanes.some(l => l.id === id)).length : LANE_ORDER.length;
+  const v = score ? voiceLayers().length : 0;
+  return TL.secH + TL.gap + 6 * TL.bandH + TL.gap + n * (TL.laneH + 4) + (v ? TL.gap + v * (TL.lyrH + 3) : 0) + 22; }
+function drawTimeline() {
+  const box = $("tlbox"), cv = $("tl"), dpr = window.devicePixelRatio || 1;
+  const W = box.clientWidth, H = tlHeight();
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + "px";
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const X = t => (t / score.duration) * W;
+  const fg = css("--fg"), muted = css("--muted"), line = css("--line"), accent = css("--accent"), sunk = css("--sunk");
+  const labels = [];
+  // sections
+  let y = 0;
+  score.sections.forEach((s, i) => {
+    const x0 = X(s.start), x1 = X(s.end);
+    g.fillStyle = sunk; g.fillRect(x0, y, x1 - x0, TL.secH);
+    g.globalAlpha = 0.18 + 0.75 * s.energy; g.fillStyle = accent; g.fillRect(x0, y + TL.secH - 5, x1 - x0, 5); g.globalAlpha = 1;
+    g.fillStyle = line; g.fillRect(x0, 0, 1, H);
+    g.save(); g.beginPath(); g.rect(x0 + 4, y, x1 - x0 - 8, TL.secH); g.clip();
+    g.fillStyle = fg; g.font = "500 12px " + css("--body"); g.fillText(s.name, x0 + 6, y + 17); g.restore();
+  });
+  y += TL.secH + TL.gap;
+  // spectrum heat strips
+  const sp = score.spectrum, bands = ["air", "high", "mid", "lowmid", "bass", "sub"];
+  labels.push([y, "spectrum"]);
+  bands.forEach((b, bi) => {
+    const v = sp.bands[b]; const hi = Math.max(...v.filter(isFinite)), lo = hi - 40;
+    const n = v.length;
+    for (let i = 0; i < n; i++) { const a = Math.max(0, Math.min(1, (v[i] - lo) / 40));
+      g.globalAlpha = a; g.fillStyle = accent; const x0 = (i / n) * W; g.fillRect(x0, y + bi * TL.bandH, W / n + 1, TL.bandH - 1); }
+    g.globalAlpha = 1;
+  });
+  y += 6 * TL.bandH + TL.gap;
+  // math lanes
+  for (const id of LANE_ORDER) {
+    const l = score.lanes.find(x => x.id === id); if (!l) continue;
+    g.fillStyle = sunk; g.fillRect(0, y, W, TL.laneH);
+    let lo = Math.min(...l.v), hi = Math.max(...l.v); if (id === "period") { lo = 0; hi = 8; } if (hi === lo) hi = lo + 1;
+    const Y = v => y + TL.laneH - 3 - ((v - lo) / (hi - lo)) * (TL.laneH - 6);
+    if (l.ref !== null && l.ref !== undefined) { g.strokeStyle = muted; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(0, Y(l.ref)); g.lineTo(W, Y(l.ref)); g.stroke(); g.setLineDash([]); }
+    if (id === "period") {
+      for (let i = 0; i < l.t.length; i++) { const v = l.v[i], x0 = X(l.t[i]), x1 = X(l.t[i + 1] ?? score.duration);
+        g.fillStyle = v === 0 ? css("--warn") : fg; g.globalAlpha = v === 0 ? 0.55 : 0.75;
+        const h = v === 0 ? TL.laneH - 6 : Math.min(v, 8) / 8 * (TL.laneH - 6); g.fillRect(x0, y + TL.laneH - 3 - h, x1 - x0 + 0.5, h); }
+      g.globalAlpha = 1;
+    } else {
+      g.strokeStyle = fg; g.lineWidth = 1.25; g.beginPath();
+      l.t.forEach((t, i) => { const px = X(t), py = Y(l.v[i]); i ? g.lineTo(px, py) : g.moveTo(px, py); }); g.stroke();
+    }
+    labels.push([y, l.name]);
+    y += TL.laneH + 4;
+  }
+  // voices: one row per singer, each line a block in its colour (hover for the words)
+  TL.lyr = [];
+  const vls = voiceLayers();
+  if (vls.length) {
+    y += TL.gap;
+    for (const L of vls) {
+      g.fillStyle = sunk; g.fillRect(0, y, W, TL.lyrH);
+      const col = layerColor(L.color);
+      for (const ln of lyLines.filter(x => x.layer === L.id)) {
+        const x0 = X(ln.t), x1 = Math.max(X(ln.end || ln.t + 1), x0 + 3);
+        g.fillStyle = col; g.globalAlpha = 0.9; g.fillRect(x0, y + 2, x1 - x0, TL.lyrH - 4); g.globalAlpha = 1;
+        if (x1 - x0 > 46) { g.save(); g.beginPath(); g.rect(x0 + 2, y, x1 - x0 - 4, TL.lyrH); g.clip();
+          g.fillStyle = isDark() ? "#0b0c12" : "#ffffff"; g.font = "500 10px " + css("--mono"); g.fillText(ln.text, x0 + 4, y + TL.lyrH - 6); g.restore(); }
+        TL.lyr.push({ x0, x1, y0: y, y1: y + TL.lyrH, L, ln });
+      }
+      labels.push([y, "♪ " + L.name]);
+      y += TL.lyrH + 3;
+    }
+  }
+  // golden sections of the form (φ⁻², φ⁻¹)
+  if (score.geometry && score.geometry.golden) {
+    g.save(); g.strokeStyle = accent; g.setLineDash([2, 4]); g.lineWidth = 1; g.fillStyle = accent; g.font = "11px ui-monospace, monospace";
+    score.geometry.golden.forEach((bar, k) => { const x = X(bar * (score.beats_per_bar || 4) * 60 / score.bpm);
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); g.fillText(k ? "φ⁻¹" : "φ⁻²", x + 4, H - 6); });
+    g.restore(); }
+  // annotations + notes
+  const ay = y + 4;
+  g.fillStyle = fg;
+  score.annotations.forEach(a => { const x = X(a.t); g.beginPath(); g.moveTo(x - 5, ay); g.lineTo(x + 5, ay); g.lineTo(x, ay + 8); g.fill(); });
+  g.fillStyle = accent;
+  notes.forEach(n => { const x = X(n.t); g.beginPath(); g.arc(x, ay + 14, 4, 0, Math.PI * 2); g.fill(); });
+  // labels as html (readable over canvas)
+  const L = $("tllabels"); L.innerHTML = "";
+  labels.forEach(([yy, txt]) => { const s = document.createElement("span"); s.style.top = (yy + 2) + "px"; s.textContent = txt; L.appendChild(s); });
+  TL.markY = ay;
+}
+
+// ---------- lanes
+function buildLanes() {
+  const host = $("lanes"); host.innerHTML = "";
+  for (const L of score.layers) {
+    const lane = document.createElement("div"); lane.className = "lane"; lane.dataset.id = L.id;
+    lane.innerHTML = `
+      <div class="lane-label"><i class="chip"></i><div class="ltext"><button class="lname" aria-expanded="false"></button><span class="lmeta"></span></div>
+        <span class="ms"><button class="m" aria-pressed="false" title="Mute">M</button><button class="s" aria-pressed="false" title="Solo">S</button></span></div>
+      <div class="strip"><canvas></canvas><div class="ph"></div></div>
+      <div class="detail" hidden><p class="purpose"><b>Job.</b> <span></span></p><p class="feelp"><b>Should feel:</b> <span></span></p><p class="d"></p><div class="math" hidden></div><p class="inst"></p><p class="lanep"></p></div>`;
+    lane.querySelector(".chip").style.setProperty("--c", layerColor(L.color));
+    const nameBtn = lane.querySelector(".lname"); nameBtn.textContent = L.name;
+    lane.querySelector(".d").textContent = L.description;
+    lane.querySelector(".lmeta").textContent = [L.role, L.depth, L.register].filter(Boolean).join(" · ");
+    lane.querySelector(".purpose span").textContent = L.purpose || ""; lane.querySelector(".purpose").hidden = !L.purpose;
+    lane.querySelector(".feelp span").textContent = L.feel || ""; lane.querySelector(".feelp").hidden = !L.feel;
+    const sp = L.spectrum, ear = L.ear; lane.querySelector(".lanep").textContent = sp ? `Lane: filtered to ${L.band ? L.band.map(hz).join("–") : "full range"}. Measured: 80% of its energy sits between ${hz(sp.p10)} and ${hz(sp.p90)}.` + (ear ? ` As the ear weighs it: ${hz(ear.hz10)}–${hz(ear.hz90)}, perceived level ${ear.a_level_db.toFixed(0)} dB (A-weighted).` : "") : "";
+    if (L.math) { const m = lane.querySelector(".math"); m.hidden = false; m.textContent = L.math; }
+    lane.querySelector(".inst").textContent = `${L.instrument.name}: ${L.instrument.description}`;
+    nameBtn.addEventListener("click", () => { const d = lane.querySelector(".detail"); d.hidden = !d.hidden; nameBtn.setAttribute("aria-expanded", !d.hidden); });
+    const mb = lane.querySelector(".m"), sb = lane.querySelector(".s");
+    // muting or soloing a layer switches playback to the stems (the master can't take a layer out)
+    mb.addEventListener("click", () => { mute.has(L.id) ? mute.delete(L.id) : mute.add(L.id); mb.setAttribute("aria-pressed", mute.has(L.id)); setMode("stems"); applyMix(); });
+    sb.addEventListener("click", () => { solo.has(L.id) ? solo.delete(L.id) : solo.add(L.id); sb.setAttribute("aria-pressed", solo.has(L.id)); setMode("stems"); applyMix(); });
+    laneInteract(lane.querySelector(".strip"), L);
+    host.appendChild(lane);
+  }
+  applyMix();
+}
+// ---------- the layers' view: zoom and scroll through the song
+const VIEW = { t0: 0, t1: 1 };
+const PITCH = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+const noteName = p => PITCH[((Math.round(p) % 12) + 12) % 12] + (Math.floor(Math.round(p) / 12) - 1);
+function viewSpan() { return VIEW.t1 - VIEW.t0; }
+function minSpan() { return Math.min(score.duration, 2 * (score.beats_per_bar || 4) * 60 / score.bpm); }
+function setView(t0, span, redraw = true) {
+  span = Math.max(minSpan(), Math.min(span, score.duration));
+  t0 = Math.max(0, Math.min(t0, score.duration - span));
+  VIEW.t0 = t0; VIEW.t1 = t0 + span;
+  const zoomed = span < score.duration * 0.98;
+  $("lanes").classList.toggle("zoomed", zoomed);
+  const sc = $("z-scroll"); sc.disabled = !zoomed;
+  sc.value = zoomed ? Math.round(1000 * t0 / Math.max(1e-6, score.duration - span)) : 0;
+  const bar = t => Math.floor(t * score.bpm / 60 / (score.beats_per_bar || 4)) + 1;
+  $("z-range").textContent = zoomed ? `bars ${bar(VIEW.t0)}–${bar(VIEW.t1 - 1e-3)} · ×${(score.duration / span).toFixed(span > score.duration / 10 ? 1 : 0)}` : "whole song";
+  if (redraw) { drawLanes(); lanePlayhead(); }
+}
+function zoomBy(f, at) {
+  const span = viewSpan(), c = at === undefined ? (pos >= VIEW.t0 && pos <= VIEW.t1 ? pos : VIEW.t0 + span / 2) : at;
+  const ns = Math.max(minSpan(), Math.min(span / f, score.duration));
+  const frac = (c - VIEW.t0) / span;
+  setView(c - frac * ns, ns);
+}
+function lanePlayhead() {
+  if (!score) return;
+  const f = (pos - VIEW.t0) / viewSpan();
+  const el = $("lanes"); el.style.setProperty("--phl", Math.max(0, Math.min(1, f)).toFixed(5)); el.style.setProperty("--phv", f >= 0 && f <= 1 ? 1 : 0);
+}
+function followPlayhead() {
+  if (!$("z-follow").checked || viewSpan() >= score.duration * 0.98) return;
+  if (pos > VIEW.t1 - viewSpan() * 0.04 || pos < VIEW.t0) setView(pos - viewSpan() * 0.08, viewSpan());
+}
+$("z-in").addEventListener("click", () => zoomBy(2));
+$("z-out").addEventListener("click", () => zoomBy(0.5));
+$("z-fit").addEventListener("click", () => setView(0, score.duration));
+$("z-scroll").addEventListener("input", e => { const span = viewSpan(); setView((+e.target.value / 1000) * (score.duration - span), span); });
+function laneScale(L, H) {
+  const ps = L.notes.filter(x => x[2] > 0).map(x => x[2]);
+  const lo = ps.length ? Math.min(...ps) : 0, hi = ps.length ? Math.max(...ps) : 1;
+  return { lo, hi, span: Math.max(hi - lo, 1), Y: p => hi === lo ? H / 2 - 2 : 6 + (1 - (p - lo) / Math.max(hi - lo, 1)) * (H - 14) };
+}
+function drawLanes() {
+  const dpr = window.devicePixelRatio || 1, t0 = VIEW.t0, span = viewSpan(), zoomed = span < score.duration * 0.98;
+  const spb = 60 / score.bpm, bpb = score.beats_per_bar || 4, barS = spb * bpb;
+  const fps = score.env_fps || 20;
+  for (const L of score.layers) {
+    const strip = document.querySelector(`.lane[data-id="${L.id}"] .strip`); if (!strip) continue;
+    const cv = strip.querySelector("canvas"), W = strip.clientWidth, H = strip.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const col = layerColor(L.color), X = t => (t - t0) / span * W;
+    // bar and beat grid when zoomed in
+    if (zoomed) {
+      const showBeats = span < 14;
+      g.fillStyle = css("--line");
+      for (let b = Math.floor(t0 / barS); b * barS <= t0 + span; b++) {
+        const xb = X(b * barS); g.globalAlpha = 1; g.fillRect(xb, 0, 1, H);
+        if (showBeats) { g.globalAlpha = 0.5; for (let k = 1; k < bpb; k++) g.fillRect(X(b * barS + k * spb), 0, 1, H); }
+        if (span < 40 || b % 4 === 0) { g.globalAlpha = 1; g.fillStyle = css("--muted"); g.font = "9px " + css("--mono"); g.fillText(b + 1, xb + 2, 9); g.fillStyle = css("--line"); }
+      }
+      g.globalAlpha = 1;
+    }
+    // energy envelope
+    const env = L.env, n = env.length, mx = Math.max(...env, 1e-6);
+    const i0 = Math.max(0, Math.floor(t0 * fps)), i1 = Math.min(n - 1, Math.ceil((t0 + span) * fps));
+    g.fillStyle = col; g.globalAlpha = 0.18; g.beginPath(); g.moveTo(X(i0 / fps), H);
+    for (let i = i0; i <= i1; i++) g.lineTo(X(i / fps), H - Math.sqrt(env[i] / mx) * (H - 2));
+    g.lineTo(X(i1 / fps), H); g.fill(); g.globalAlpha = 1;
+    // notes
+    const S = laneScale(L, H), nh = zoomed ? 5 : 2.5;
+    g.fillStyle = col;
+    L.notes.forEach(([t, d, p, v], i) => {
+      if (t + d < t0 || t > t0 + span) return;
+      const x = X(t), w = Math.max(zoomed ? 2 : 1, d / span * W), yy = S.Y(p);
+      g.globalAlpha = 0.35 + 0.6 * v; g.fillRect(x, yy, w, nh);
+      if (zoomed && w > 16) {
+        g.globalAlpha = 1; g.font = "9px " + css("--mono"); g.fillStyle = css("--fg");
+        const sy = L.syl && L.syl[i];
+        const label = sy && sy !== "-" ? sy : (L.role === "drums" || L.role === "anchor" || L.role === "fx" || p <= 0) ? "" : (w > 26 ? noteName(p) : "");
+        if (label) g.fillText(label, x + 1, yy - 2 < 9 ? yy + nh + 9 : yy - 2);
+        g.fillStyle = col;
+      }
+    });
+    g.globalAlpha = 1;
+    if (zoomed && S.hi > S.lo && L.role !== "drums" && L.role !== "anchor" && L.role !== "fx") {
+      g.font = "9px " + css("--mono"); g.fillStyle = css("--muted");
+      g.fillText(noteName(S.hi), W - 30, 10); g.fillText(noteName(S.lo), W - 30, H - 3);
+    }
+  }
+}
+// hover a note to read it; drag to pan; ctrl/⌘ + wheel to zoom; shift + wheel to scroll
+function noteAt(L, strip, ex, ey) {
+  const r = strip.getBoundingClientRect(), W = r.width, H = r.height, span = viewSpan();
+  const x = ex - r.left, y = ey - r.top, t = VIEW.t0 + x / W * span, S = laneScale(L, H), tol = 4 / W * span;
+  let best = null, bd = 1e9;
+  L.notes.forEach(([nt, d, p, v], i) => {
+    if (t < nt - tol || t > nt + Math.max(d, tol)) return;
+    const dy = Math.abs(S.Y(p) - y);
+    if (dy < 9 && dy < bd) { bd = dy; best = i; }
+  });
+  return best;
+}
+function laneInteract(strip, L) {
+  let drag = null;
+  strip.addEventListener("pointerdown", e => { drag = { x: e.clientX, t0: VIEW.t0, moved: false, id: e.pointerId }; });
+  strip.addEventListener("pointermove", e => {
+    const tip = $("ntip");
+    if (drag && e.buttons) {
+      const dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 4 && viewSpan() < score.duration * 0.98) { drag.moved = true; strip.classList.add("dragging");
+        try { strip.setPointerCapture(drag.id); } catch (er) {}
+        setView(drag.t0 - dx / strip.clientWidth * viewSpan(), viewSpan()); }
+      tip.hidden = true; return;
+    }
+    const i = noteAt(L, strip, e.clientX, e.clientY);
+    if (i === null) { tip.hidden = true; return; }
+    const [nt, d, p, v] = L.notes[i], sy = L.syl && L.syl[i];
+    const pitch = p > 0 && !(L.role === "drums" || L.role === "anchor" || L.role === "fx") ? noteName(p) + " · " : "";
+    tip.textContent = `${L.name} · ${pitch}bar ${barBeat(nt)} · ${d.toFixed(2)} s${sy && sy !== "-" ? " · “" + sy + "”" : ""}`;
+    tip.style.left = e.clientX + "px"; tip.style.top = e.clientY + "px"; tip.hidden = false;
+  });
+  strip.addEventListener("pointerleave", () => { $("ntip").hidden = true; });
+  strip.addEventListener("pointerup", e => {
+    const was = drag; drag = null; strip.classList.remove("dragging");
+    if (was && !was.moved) { const r = strip.getBoundingClientRect(); setPos(VIEW.t0 + (e.clientX - r.left) / r.width * viewSpan()); }
+  });
+  strip.addEventListener("wheel", e => {
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); const r = strip.getBoundingClientRect();
+      zoomBy(e.deltaY < 0 ? 1.25 : 0.8, VIEW.t0 + (e.clientX - r.left) / r.width * viewSpan()); }
+    else if ((e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) && viewSpan() < score.duration * 0.98) { e.preventDefault();
+      const d = (e.shiftKey ? e.deltaY : e.deltaX) / strip.clientWidth * viewSpan(); setView(VIEW.t0 + d, viewSpan()); }
+  }, { passive: false });
+}
+function drawAll() { if (!score) return; drawTimeline(); drawLanes(); drawFmap(); drawGeo(); }
+function drawFmap() {
+  const cv = $("fm"); if (!cv || !score) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.parentElement.clientWidth - 28;
+  const rows = score.layers.filter(l => l.spectrum).sort((a, b) => b.spectrum.p50 - a.spectrum.p50);
+  const rowH = 24, labelW = Math.min(150, W * 0.32), axisH = 22, H = rows.length * rowH + axisH;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + "px";
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const f0 = 25, f1 = rows[0].spectrum.edges[rows[0].spectrum.edges.length - 1], plotW = W - labelW - 8;
+  const X = f => labelW + (Math.log(f / f0) / Math.log(f1 / f0)) * plotW;
+  const sec = sectionAt(pos), live = new Set(sec.layers);
+  const fg = css("--fg"), muted = css("--muted"), line = css("--line"), sunk = css("--sunk");
+  [50, 100, 200, 500, 1000, 2000, 5000, 10000].forEach(f => { if (f > f1) return; const x = X(f);
+    g.fillStyle = line; g.fillRect(x, 0, 1, rows.length * rowH);
+    g.fillStyle = muted; g.font = "11px " + css("--mono"); g.textAlign = "center"; g.fillText(hz(f).replace(" ", ""), x, H - 6); });
+  rows.forEach((L, i) => {
+    const y = i * rowH, on = live.has(L.id), col = layerColor(L.color), sp = L.spectrum;
+    g.globalAlpha = on ? 1 : 0.22;
+    g.fillStyle = sunk; g.fillRect(labelW, y + 3, plotW, rowH - 6);
+    sp.prof.forEach((v, k) => { if (v <= 0) return; const a = X(Math.max(sp.edges[k], f0)), b = X(sp.edges[k + 1]);
+      g.globalAlpha = (on ? 1 : 0.22) * Math.sqrt(v) * 0.85; g.fillStyle = col; g.fillRect(a, y + 3, b - a + 0.5, rowH - 6); });
+    g.globalAlpha = on ? 1 : 0.3; g.fillStyle = col; g.fillRect(X(sp.p10), y + rowH - 5, X(sp.p90) - X(sp.p10), 3);
+    g.fillStyle = on ? fg : muted; g.font = (on ? "500 " : "") + "12px " + css("--body"); g.textAlign = "left";
+    g.fillText(L.name, 0, y + 15);
+    g.fillStyle = muted; g.font = "10px " + css("--mono"); g.textAlign = "right"; g.fillText(L.depth || "", labelW - 8, y + 15);
+  });
+  g.globalAlpha = 1;
+}
+
+// ---------- seeking + tooltips
+function seekable(el) {
+  el.addEventListener("click", e => { const r = el.getBoundingClientRect(); setPos(((e.clientX - r.left) / r.width) * score.duration); });
+}
+seekable($("tlbox"));
+$("tlbox").addEventListener("mousemove", e => {
+  const r = $("tlbox").getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, t = (x / r.width) * score.duration;
+  const tip = $("tip"); let text = null;
+  const hit = TL.lyr.filter(h => y >= h.y0 && y < h.y1 && x >= h.x0 - 3 && x <= h.x1 + 3)
+    .sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - x) - Math.abs((b.x0 + b.x1) / 2 - x))[0];
+  if (hit) text = `${hit.L.name} · ${fmt(hit.ln.t)}: “${hit.ln.text}”`;
+  else if (TL.markY && y > TL.markY - 4) {
+    const near = (arr, f) => arr.map(a => [Math.abs((a.t / score.duration) * r.width - x), a]).filter(([d]) => d < 8).sort((a, b) => a[0] - b[0])[0];
+    if (y < TL.markY + 10) { const a = near(score.annotations); if (a) text = a[1].text; }
+    else { const n = near(notes); if (n) text = `${fmt(n[1].t)} · ${n[1].text || n[1].tags.join(", ")}`; }
+  } else if (y < TL.secH) { const s = sectionAt(t); text = `${s.name}: ${s.intent}`; }
+  else { const l = laneAtY(y); if (l) text = `${l.name}: ${l.description}`; }
+  tip.hidden = !text; if (text) { tip.textContent = text; tip.style.left = Math.min(Math.max(x, 150), r.width - 150) + "px"; tip.style.top = y + "px"; }
+});
+$("tlbox").addEventListener("mouseleave", () => $("tip").hidden = true);
+function laneAtY(y) {
+  let yy = TL.secH + TL.gap + 6 * TL.bandH + TL.gap;
+  for (const id of LANE_ORDER) { const l = score.lanes.find(x => x.id === id); if (!l) continue; if (y >= yy && y < yy + TL.laneH) return l; yy += TL.laneH + 4; }
+  return null;
+}
+
+// ---------- listener notes (db)
+TAGS.forEach(t => { const b = document.createElement("button"); b.textContent = t; b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => { pickedTags.has(t) ? pickedTags.delete(t) : pickedTags.add(t); b.setAttribute("aria-pressed", pickedTags.has(t)); });
+  $("note-tags").appendChild(b); });
+
+async function initDb() {
+  if (!window.claude?.use) { $("note-status").textContent = "Notes need the claude.ai viewer."; $("note-pin").disabled = true; return; }
+  db = await window.claude.use("db"); user = await window.claude.use("user");
+  if (!db) { $("note-status").textContent = "Sign in to leave notes."; $("note-pin").disabled = true; return; }
+  try { myId = user ? await user.id() : null; } catch (e) {}
+  const timer = setTimeout(() => { $("note-status").textContent = "Notes can't be reached yet."; }, 10000);
+  db.collection("requests").onSnapshot(snap => { requests = snap.docs.map(d => ({ id: d.id, ...d.data() })); repaintRequests(); }, () => {});
+  db.collection("feedback").onSnapshot(snap => {
+    if (!snap.metadata?.fromCache) { clearTimeout(timer); if ($("note-status").textContent.startsWith("Notes can't")) $("note-status").textContent = ""; }
+    notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderNotes(); drawTimeline();
+  }, err => { clearTimeout(timer); $("note-status").textContent = "Notes unavailable (" + (err.code || "error") + ")."; });
+  abAttach();
+}
+let saving = false;
+$("note-pin").addEventListener("click", async () => {
+  if (!db || saving || !score) return;
+  const text = $("note-text").value.trim(); if (!text && !pickedTags.size) { $("note-status").textContent = "Write something or pick a tag."; return; }
+  saving = true; $("note-pin").disabled = true;
+  const s = sectionAt(pos);
+  try {
+    const [bar, beat] = barBeat(pos).split(".").map(Number);
+    await db.collection("feedback").add({ song: songMeta.id, t: Math.round(pos * 10) / 10, bar, beat, section: s.name, text,
+      tags: [...pickedTags], layers: [...pickedLayers], by: myId || "anon", from: "human", mode, muted: [...mute], soloed: [...solo], at: Date.now() });
+    $("note-text").value = ""; pickedTags.clear(); pickedLayers.clear();
+    document.querySelectorAll("#note-tags button, #note-layers button").forEach(b => b.setAttribute("aria-pressed", "false"));
+    $("note-status").textContent = "Pinned at bar " + barBeat(pos) + ".";
+  } catch (e) { $("note-status").textContent = e.code === "not_granted" || e.code === "permission_denied" ? "You can listen, but this share doesn't allow notes." : "Couldn't save the note. Try again."; }
+  saving = false; $("note-pin").disabled = false;
+});
+
+function buildLayerPick() {        // which layer a note is about: one tap, so "the brass sounds fake at bar 40" is easy to say
+  const host = $("note-layers"); host.innerHTML = ""; pickedLayers.clear();
+  const lab = document.createElement("span"); lab.className = "lp-label"; lab.textContent = "About:"; host.appendChild(lab);
+  score.layers.forEach(L => { const b = document.createElement("button"); b.type = "button"; b.textContent = L.name; b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", () => { pickedLayers.has(L.id) ? pickedLayers.delete(L.id) : pickedLayers.add(L.id); b.setAttribute("aria-pressed", pickedLayers.has(L.id)); });
+    host.appendChild(b); });
+}
+
+async function renderNotes() {
+  const host = $("nlist"); if (!score) return;
+  const mine = notes.filter(n => n.song === songMeta.id).sort((a, b) => a.t - b.t);
+  if (!mine.length) { host.innerHTML = '<p class="empty">No notes yet. Play the song, and when something lands or drags, write it down here. It gets pinned to that moment, and I read these when I revise.</p>'; return; }
+  let names = {}; try { if (user?.profiles) names = await user.profiles([...new Set(mine.map(n => n.by).filter(b => b && b !== "anon"))]); } catch (e) {}
+  host.innerHTML = "";
+  for (const n of mine) {
+    const el = document.createElement("div"); el.className = "note" + (n.from === "claude" ? " claude" : "");
+    const who = n.from === "claude" ? "Claude" : (n.by === myId ? "You" : (names[n.by]?.name || "Listener"));
+    el.innerHTML = `<div class="meta"><button></button><span></span></div><p></p><div class="tagline"></div>`;
+    const jump = el.querySelector(".meta button"); jump.textContent = `bar ${n.bar ? n.bar + "." + n.beat : barBeat(n.t)} · ${n.section || ""}`; jump.addEventListener("click", () => setPos(n.t));
+    el.querySelector(".meta span").textContent = who;
+    el.querySelector("p").textContent = n.text || ""; if (!n.text) el.querySelector("p").hidden = true;
+    const tl = el.querySelector(".tagline"); (n.tags || []).forEach(t => { const s = document.createElement("span"); s.textContent = t; tl.appendChild(s); });
+    (n.layers || []).forEach(l => { const s = document.createElement("span"); s.className = "lyr"; s.textContent = (score.layers.find(x => x.id === l) || {}).name || l; tl.appendChild(s); });
+    host.appendChild(el);
+  }
+}
+
+// ---------- resize + theme
+let rT = 0; new ResizeObserver(() => { clearTimeout(rT); rT = setTimeout(drawAll, 80); }).observe(document.body);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawAll(); buildChips(); });
+new MutationObserver(() => { drawAll(); buildChips(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+function buildChips() { if (!score) return; document.querySelectorAll(".lane").forEach(l => { const L = score.layers.find(x => x.id === l.dataset.id); l.querySelector(".chip").style.setProperty("--c", layerColor(L.color)); }); lastSec = null; updatePos(); }
+
+// ---------- pick one of two (db "abchoices": one doc per listener per pair; Claude reads them back)
+let abPairs = [], abIdx = 0, abSide = null, abChoices = {}, abRaf = 0, abAttached = false;
+const abAudio = { a: new Audio(), b: new Audio() };
+Object.values(abAudio).forEach(a => { a.preload = "auto"; a.addEventListener("ended", () => abPause()); });
+async function initAb() {
+  try { const r = await fetch("ab/pairs.json"); if (!r.ok) return; abPairs = (await r.json()).pairs || []; } catch (e) { return; }
+  if (!abPairs.length) return;
+  $("abpanel").hidden = false;
+  try { const k = localStorage.getItem("ab-idx"); if (k !== null) abIdx = Math.min(+k || 0, abPairs.length - 1); } catch (e) {}
+  abShow();
+}
+function abKey(pid) { return (pid + "__" + (myId || "anon")).replace(/[^A-Za-z0-9_-]/g, "_"); }
+function abAttach() {
+  if (abAttached || !db) return; abAttached = true;
+  db.collection("abchoices").onSnapshot(snap => {
+    abChoices = {}; snap.docs.forEach(d => { const v = d.data(); if (v.by === (myId || "anon")) abChoices[v.pair] = v; });
+    abShow(false);
+  }, () => {});
+}
+function abShow(load = true) {
+  const p = abPairs[abIdx]; if (!p) return;
+  const done = abPairs.filter(x => abChoices[x.id]).length;
+  $("ab-count").textContent = `${done} of ${abPairs.length} picked`;
+  const dots = $("ab-dots"); dots.innerHTML = "";
+  abPairs.forEach((x, i) => { const b = document.createElement("button"); b.type = "button"; b.textContent = i + 1;
+    b.title = x.method; if (abChoices[x.id]) b.classList.add("done"); b.setAttribute("aria-current", i === abIdx);
+    b.addEventListener("click", () => { abIdx = i; abSave(); abShow(); }); dots.appendChild(b); });
+  $("ab-q").textContent = p.question;
+  $("ab-meta").textContent = [p.song, p.bars, "loudness matched"].filter(Boolean).join(" · ");
+  $("ab-about").textContent = p.about || "";
+  if (load) { abPause(); abAudio.a.src = "ab/" + p.a; abAudio.b.src = "ab/" + p.b; $("ab-prog").style.width = "0"; $("ab-note").value = abChoices[p.id]?.note || ""; }
+  const c = abChoices[p.id]?.choice || null;
+  [["ab-pa", "a"], ["ab-pb", "b"], ["ab-ps", "same"]].forEach(([id, v]) => $(id).setAttribute("aria-pressed", c === v));
+  $("ab-a").classList.toggle("chosen", c === "a"); $("ab-b").classList.toggle("chosen", c === "b");
+  $("ab-reveal").hidden = !c;
+  if (c) { const newSide = p.new_is.toUpperCase(), oldSide = p.new_is === "a" ? "B" : "A";
+    $("ab-reveal-t").textContent = `${newSide} was the new version (${p.labels.new}); ${oldSide} was ${p.labels.old}. ` +
+      (c === "same" ? "You couldn't tell them apart." : c === p.new_is ? "You kept the new one." : "You kept the old one."); }
+  $("ab-prev").disabled = abIdx === 0; $("ab-next").disabled = abIdx === abPairs.length - 1;
+}
+function abSave() { try { localStorage.setItem("ab-idx", abIdx); } catch (e) {} }
+function abPause() { Object.values(abAudio).forEach(a => a.pause()); abSide = null; cancelAnimationFrame(abRaf);
+  ["a", "b"].forEach(s => { $("ab-" + s).setAttribute("aria-pressed", "false"); $("ab-" + s).querySelector("small").textContent = "play"; }); }
+async function abPlay(side) {
+  if (abSide === side) { abPause(); return; }
+  if (playing) stop();
+  const from = abSide ? abAudio[abSide].currentTime : abAudio[side].currentTime;   // switching keeps the place
+  abPause();
+  const el = abAudio[side];
+  try { el.currentTime = from; } catch (e) {}
+  try { await el.play(); } catch (e) { $("ab-status").textContent = "Tap again to start audio."; return; }
+  abSide = side; $("ab-" + side).setAttribute("aria-pressed", "true"); $("ab-" + side).querySelector("small").textContent = "playing";
+  const tick = () => { const d = el.duration || 1; $("ab-prog").style.width = (100 * el.currentTime / d).toFixed(2) + "%"; abRaf = requestAnimationFrame(tick); };
+  cancelAnimationFrame(abRaf); abRaf = requestAnimationFrame(tick);
+}
+$("ab-a").addEventListener("click", () => abPlay("a"));
+$("ab-b").addEventListener("click", () => abPlay("b"));
+$("ab-bar").addEventListener("click", e => { const r = $("ab-bar").getBoundingClientRect(), f = (e.clientX - r.left) / r.width;
+  Object.values(abAudio).forEach(a => { if (a.duration) a.currentTime = f * a.duration; }); $("ab-prog").style.width = (f * 100).toFixed(2) + "%"; });
+$("play").addEventListener("click", () => { if (abSide) abPause(); });
+async function abPick(choice) {
+  const p = abPairs[abIdx]; if (!p) return;
+  if (!db) { $("ab-status").textContent = "Sign in to save picks."; return; }
+  const row = { pair: p.id, method: p.method, choice, note: $("ab-note").value.trim(), by: myId || "anon", at: Date.now() };
+  abChoices[p.id] = row; abShow(false);
+  try { await db.collection("abchoices").doc(abKey(p.id)).set(row); $("ab-status").textContent = "Saved."; }
+  catch (e) { delete abChoices[p.id]; abShow(false);
+    $("ab-status").textContent = e.code === "not_granted" || e.code === "permission_denied" ? "This share can't save picks." : "Couldn't save the pick. Try again."; }
+}
+$("ab-pa").addEventListener("click", () => abPick("a"));
+$("ab-pb").addEventListener("click", () => abPick("b"));
+$("ab-ps").addEventListener("click", () => abPick("same"));
+$("ab-note").addEventListener("change", () => { const p = abPairs[abIdx]; if (abChoices[p?.id]) abPick(abChoices[p.id].choice); });
+$("ab-prev").addEventListener("click", () => { if (abIdx > 0) { abIdx--; abSave(); $("ab-status").textContent = ""; abShow(); } });
+$("ab-next").addEventListener("click", () => { if (abIdx < abPairs.length - 1) { abIdx++; abSave(); $("ab-status").textContent = ""; abShow(); } });
+
+initAb();
+boot();
+})();
+</script>
+
+</body></html>

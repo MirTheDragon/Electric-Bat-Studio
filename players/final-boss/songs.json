@@ -1,0 +1,69 @@
+{
+ "album": {
+  "title": "Final Boss",
+  "eyebrow": "Final Boss \u00b7 an Electric Bat single for the dance floor",
+  "statement": "One heavy dance track: the game's System AI against the boss, with a robot choir in the machine.",
+  "model": "Claude Opus 5.5",
+  "themes": {
+   "handshake": "Root, fifth, octave, minor third: the album's greeting, here the System AI's chime."
+  }
+ },
+ "songs": [
+  {
+   "n": 1,
+   "title": "Final Boss",
+   "role": "Single",
+   "fusion": "Hard techno boss fight",
+   "bpm": 160,
+   "intro": "Insert coin.",
+   "energy": 1.0,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 2,
+   "seed": 900,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 900,
+     "note": "Mir: a duet between the System AI and the boss, the boss deeper and very aggressive, a robot choir in the background, a heavy dance track.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 2,
+     "seed": 900,
+     "note": "Mir: 160 BPM, same notes, add synthy lasers.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "fb01_final_boss",
+   "concept": "A boss fight sung as a duet. The System AI coaches the player (dodge, block, counter, stay on the beat); the boss taunts, rages, loses its armour, and at the end puts in a coin of its own. Continue?",
+   "score": "songs/01/score.json",
+   "mix": "songs/01/mix.mp3",
+   "key": "D minor",
+   "duration": 206.5,
+   "stems": {
+    "kick": "songs/01/stems/kick.mp3",
+    "rumble": "songs/01/stems/rumble.mp3",
+    "drums": "songs/01/stems/drums.mp3",
+    "hats": "songs/01/stems/hats.mp3",
+    "bass": "songs/01/stems/bass.mp3",
+    "growl": "songs/01/stems/growl.mp3",
+    "acid": "songs/01/stems/acid.mp3",
+    "stabs": "songs/01/stems/stabs.mp3",
+    "lead": "songs/01/stems/lead.mp3",
+    "pad": "songs/01/stems/pad.mp3",
+    "braam": "songs/01/stems/braam.mp3",
+    "fx": "songs/01/stems/fx.mp3",
+    "machines": "songs/01/stems/machines.mp3",
+    "lasers": "songs/01/stems/lasers.mp3",
+    "system": "songs/01/stems/system.mp3",
+    "boss": "songs/01/stems/boss.mp3",
+    "choir": "songs/01/stems/choir.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "7A"
+  }
+ ]
+}

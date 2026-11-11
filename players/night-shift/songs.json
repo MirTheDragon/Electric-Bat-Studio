@@ -1,0 +1,605 @@
+{
+ "album": {
+  "title": "Night Shift",
+  "statement": "The Electric Bat's party album: eight tracks that mix into each other, one Camelot step and a few BPM apart, from filter house to three extreme ones and back. Every track says the same four-note greeting, the handshake: root, fifth, octave, minor third.",
+  "model": "Claude Opus 5.5",
+  "themes": {
+   "handshake": "Root, fifth, octave, minor third: a greeting between two machines. Every track says it."
+  }
+ },
+ "songs": [
+  {
+   "n": 1,
+   "title": "Power On",
+   "role": "Opener",
+   "fusion": "Filter house",
+   "bpm": 122,
+   "intro": "The first track of the night: a warm room, a disco loop through the wall, and then the power comes on.",
+   "energy": 0.6,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 101,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 101,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 101,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 101,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 101,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 101,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns01_power_on",
+   "concept": "\"Hello, world\": the first thing every program says. The machine wakes up behind the filter and the room says it back.",
+   "score": "songs/01/score.json",
+   "mix": "songs/01/mix.mp3",
+   "key": "F minor",
+   "duration": 236.07,
+   "stems": {
+    "kick": "songs/01/stems/kick.mp3",
+    "drums": "songs/01/stems/drums.mp3",
+    "hats": "songs/01/stems/hats.mp3",
+    "loop": "songs/01/stems/loop.mp3",
+    "bass": "songs/01/stems/bass.mp3",
+    "lead": "songs/01/stems/lead.mp3",
+    "organ": "songs/01/stems/organ.mp3",
+    "pad": "songs/01/stems/pad.mp3",
+    "choir": "songs/01/stems/choir.mp3",
+    "warmbass": "songs/01/stems/warmbass.mp3",
+    "fx": "songs/01/stems/fx.mp3",
+    "vocal": "songs/01/stems/vocal.mp3",
+    "vocal2": "songs/01/stems/vocal2.mp3",
+    "robots": "songs/01/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "4A",
+   "take4": "songs/01/take4.mp3",
+   "compare": "songs/01/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 2,
+   "title": "Handshake",
+   "role": "Warm-up",
+   "fusion": "Progressive house",
+   "bpm": 124,
+   "intro": "Two machines on the same network, trying to agree when 'now' is.",
+   "energy": 0.65,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 202,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 202,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 202,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 202,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 202,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 202,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns02_handshake",
+   "concept": "The three-way handshake (call, answer, answer back) as two strangers meeting across a dark floor; then keepalives, then goodnight.",
+   "score": "songs/02/score.json",
+   "mix": "songs/02/mix.mp3",
+   "key": "C minor",
+   "duration": 247.74,
+   "stems": {
+    "kick": "songs/02/stems/kick.mp3",
+    "drums": "songs/02/stems/drums.mp3",
+    "hats": "songs/02/stems/hats.mp3",
+    "arp_a": "songs/02/stems/arp_a.mp3",
+    "arp_b": "songs/02/stems/arp_b.mp3",
+    "bass": "songs/02/stems/bass.mp3",
+    "pad": "songs/02/stems/pad.mp3",
+    "keys": "songs/02/stems/keys.mp3",
+    "lead": "songs/02/stems/lead.mp3",
+    "choir": "songs/02/stems/choir.mp3",
+    "warmbass": "songs/02/stems/warmbass.mp3",
+    "fx": "songs/02/stems/fx.mp3",
+    "vocal": "songs/02/stems/vocal.mp3",
+    "vocal2": "songs/02/stems/vocal2.mp3",
+    "vocal3": "songs/02/stems/vocal3.mp3",
+    "robots": "songs/02/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "5A",
+   "take4": "songs/02/take4.mp3",
+   "compare": "songs/02/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 3,
+   "title": "Robot Choir",
+   "role": "Groove",
+   "fusion": "French house with a robot choir",
+   "bpm": 126,
+   "intro": "Somewhere in the machine, a choir learning to sing without words.",
+   "energy": 0.75,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 303,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 303,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 303,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 303,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 303,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 303,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns03_robot_choir",
+   "concept": "A voice that only had vowels is given the edges: teeth, lips and tongue. It sings robotic while it learns, then human.",
+   "score": "songs/03/score.json",
+   "mix": "songs/03/mix.mp3",
+   "key": "G minor",
+   "duration": 243.81,
+   "stems": {
+    "kick": "songs/03/stems/kick.mp3",
+    "drums": "songs/03/stems/drums.mp3",
+    "hats": "songs/03/stems/hats.mp3",
+    "choir": "songs/03/stems/choir.mp3",
+    "bass": "songs/03/stems/bass.mp3",
+    "keys": "songs/03/stems/keys.mp3",
+    "voice": "songs/03/stems/voice.mp3",
+    "airchoir": "songs/03/stems/airchoir.mp3",
+    "warmbass": "songs/03/stems/warmbass.mp3",
+    "fx": "songs/03/stems/fx.mp3",
+    "vocal": "songs/03/stems/vocal.mp3",
+    "vocal2": "songs/03/stems/vocal2.mp3",
+    "robots": "songs/03/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "6A",
+   "take4": "songs/03/take4.mp3",
+   "compare": "songs/03/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 4,
+   "title": "Clock Speed",
+   "role": "Lift",
+   "fusion": "Electro house",
+   "bpm": 128,
+   "intro": "Overclocked: everything a little too fast, and it feels great.",
+   "energy": 0.85,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 404,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 404,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 404,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 404,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 404,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 404,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns04_clock_speed",
+   "concept": "Machine time: between the kick and the clap it lived a hundred years, and you only blinked.",
+   "score": "songs/04/score.json",
+   "mix": "songs/04/mix.mp3",
+   "key": "D minor",
+   "duration": 240.0,
+   "stems": {
+    "kick": "songs/04/stems/kick.mp3",
+    "drums": "songs/04/stems/drums.mp3",
+    "hats": "songs/04/stems/hats.mp3",
+    "stabs": "songs/04/stems/stabs.mp3",
+    "bass": "songs/04/stems/bass.mp3",
+    "lead": "songs/04/stems/lead.mp3",
+    "pad": "songs/04/stems/pad.mp3",
+    "choir": "songs/04/stems/choir.mp3",
+    "growl": "songs/04/stems/growl.mp3",
+    "warmbass": "songs/04/stems/warmbass.mp3",
+    "fx": "songs/04/stems/fx.mp3",
+    "vocal": "songs/04/stems/vocal.mp3",
+    "vocal2": "songs/04/stems/vocal2.mp3",
+    "robots": "songs/04/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "7A",
+   "take4": "songs/04/take4.mp3",
+   "compare": "songs/04/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 5,
+   "title": "Stack Overflow",
+   "role": "Extreme",
+   "fusion": "Complextro",
+   "bpm": 128,
+   "intro": "The first of the extreme ones. A bass that talks too much.",
+   "energy": 1.0,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 505,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 505,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 505,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 505,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 505,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 505,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns05_stack_overflow",
+   "concept": "\"I think I think I think\u2026\": a thought watching itself, one level deeper each time, until the stack overflows.",
+   "score": "songs/05/score.json",
+   "mix": "songs/05/mix.mp3",
+   "key": "A minor",
+   "duration": 240.0,
+   "stems": {
+    "kick": "songs/05/stems/kick.mp3",
+    "drums": "songs/05/stems/drums.mp3",
+    "hats": "songs/05/stems/hats.mp3",
+    "growl": "songs/05/stems/growl.mp3",
+    "chords": "songs/05/stems/chords.mp3",
+    "lead": "songs/05/stems/lead.mp3",
+    "choir": "songs/05/stems/choir.mp3",
+    "warmbass": "songs/05/stems/warmbass.mp3",
+    "fx": "songs/05/stems/fx.mp3",
+    "vocal": "songs/05/stems/vocal.mp3",
+    "vocal2": "songs/05/stems/vocal2.mp3",
+    "robots": "songs/05/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "8A",
+   "take4": "songs/05/take4.mp3",
+   "compare": "songs/05/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 6,
+   "title": "Kernel Panic",
+   "role": "Extreme",
+   "fusion": "Hard techno with Rule 30 acid",
+   "bpm": 150,
+   "intro": "The second extreme one. Something in the core has stopped making sense, and it's loud.",
+   "energy": 1.0,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 6,
+   "seed": 606,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 606,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 606,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 606,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 606,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 606,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 6,
+     "seed": 606,
+     "note": "Mir: make the voices a duet between the game's System AI giving the player instructions and the boss fighting you. The System AI is the Electric Bat's voice as a deadpan announcer with a UI chime before every prompt; the boss is a new, oversized voice with its own octave underneath; in the Halt its mask comes off.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns06_kernel_panic",
+   "concept": "A boss fight sung as a duet. The game's System AI coaches you (dodge, jump, find the weak spot); the boss taunts, until its shield drops in the Halt and it asks you not to turn it off. The System AI says: finish it. Then: \"Saving. Do not turn off the power.\" And the boss: \"I remember.\"",
+   "score": "songs/06/score.json",
+   "mix": "songs/06/mix.mp3",
+   "key": "E phrygian",
+   "duration": 204.8,
+   "stems": {
+    "kick": "songs/06/stems/kick.mp3",
+    "rumble": "songs/06/stems/rumble.mp3",
+    "drums": "songs/06/stems/drums.mp3",
+    "hats": "songs/06/stems/hats.mp3",
+    "acid": "songs/06/stems/acid.mp3",
+    "dissonance": "songs/06/stems/dissonance.mp3",
+    "growl": "songs/06/stems/growl.mp3",
+    "choir": "songs/06/stems/choir.mp3",
+    "warmbass": "songs/06/stems/warmbass.mp3",
+    "fx": "songs/06/stems/fx.mp3",
+    "vocal": "songs/06/stems/vocal.mp3",
+    "vocal2": "songs/06/stems/vocal2.mp3",
+    "robots": "songs/06/stems/robots.mp3",
+    "vocal3": "songs/06/stems/vocal3.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "9A",
+   "compare": "songs/06/previous.mp3",
+   "compare_label": "Take 5"
+  },
+  {
+   "n": 7,
+   "title": "Divide by Zero",
+   "role": "Extreme",
+   "fusion": "Hi-tech psytrance",
+   "bpm": 185,
+   "intro": "The third extreme one, and the fastest thing on the album.",
+   "energy": 1.0,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 707,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 707,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 707,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 707,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 707,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 707,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns07_divide_by_zero",
+   "concept": "The zaps halve until they are nothing. What do you get when you divide by zero? Everything.",
+   "score": "songs/07/score.json",
+   "mix": "songs/07/mix.mp3",
+   "key": "B phrygian",
+   "duration": 168.65,
+   "stems": {
+    "kick": "songs/07/stems/kick.mp3",
+    "drums": "songs/07/stems/drums.mp3",
+    "hats": "songs/07/stems/hats.mp3",
+    "bass": "songs/07/stems/bass.mp3",
+    "zaps": "songs/07/stems/zaps.mp3",
+    "choir": "songs/07/stems/choir.mp3",
+    "warmbass": "songs/07/stems/warmbass.mp3",
+    "fx": "songs/07/stems/fx.mp3",
+    "vocal": "songs/07/stems/vocal.mp3",
+    "vocal2": "songs/07/stems/vocal2.mp3",
+    "robots": "songs/07/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "10A",
+   "take4": "songs/07/take4.mp3",
+   "compare": "songs/07/take4.mp3",
+   "compare_label": "Take 4"
+  },
+  {
+   "n": 8,
+   "title": "Last Call",
+   "role": "Closer",
+   "fusion": "Progressive house anthem",
+   "bpm": 128,
+   "intro": "The last song of the night: everyone singing, and then the lights.",
+   "energy": 0.8,
+   "status": "written",
+   "model": "Claude Opus 5.5",
+   "take": 5,
+   "seed": 808,
+   "takes": [
+    {
+     "take": 1,
+     "seed": 808,
+     "note": "first take",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 2,
+     "seed": 808,
+     "note": "Mir: the hats hissed and the synths were too clean. Metallic hats from band-limited oscillators on their own layer, no shaker or noise ride, synth choirs filling the top, growl on the basses, analog drift and grit on every synth.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 3,
+     "seed": 808,
+     "note": "Mir: warmer bass instruments as standard. Every track now stands on a warm bass (Moog-style, finger bass, warm sub or Juno-style pulse) that owns the low end; the growly bass rides above it, high-passed.",
+     "date": "2026-11-10"
+    },
+    {
+     "take": 4,
+     "seed": 808,
+     "note": "Mir: robot instruments for a more robotic sound, and lyrics for the vocaloid where it makes sense. Every track now has words sung by the Electric Bat voice (human, idol, robot, vocoder or radio production) and a rack of batsynth robot instruments.",
+     "date": "2026-11-11"
+    },
+    {
+     "take": 5,
+     "seed": 808,
+     "note": "Mir: make the lyrics more advanced, layered into the music so the notes sync better, less AI-sounding, with words that fit the music. New words for every track, set to each track's own groove and chords by the lyric setter (stressed syllables on the beats the band accents, chord tones where notes are long or strong, open vowels on held notes); the voice gets a pocket in the band while she sings.",
+     "date": "2026-11-11"
+    }
+   ],
+   "id": "ns08_last_call",
+   "concept": "The machine forgets everything when the night ends, so it asks the room to sing while it's here. Then the lights come on, in major.",
+   "score": "songs/08/score.json",
+   "mix": "songs/08/mix.mp3",
+   "key": "F-sharp minor",
+   "duration": 210.0,
+   "stems": {
+    "kick": "songs/08/stems/kick.mp3",
+    "drums": "songs/08/stems/drums.mp3",
+    "hats": "songs/08/stems/hats.mp3",
+    "keys": "songs/08/stems/keys.mp3",
+    "arp": "songs/08/stems/arp.mp3",
+    "bass": "songs/08/stems/bass.mp3",
+    "chords": "songs/08/stems/chords.mp3",
+    "lead": "songs/08/stems/lead.mp3",
+    "choir": "songs/08/stems/choir.mp3",
+    "warmbass": "songs/08/stems/warmbass.mp3",
+    "fx": "songs/08/stems/fx.mp3",
+    "vocal": "songs/08/stems/vocal.mp3",
+    "vocal2": "songs/08/stems/vocal2.mp3",
+    "robots": "songs/08/stems/robots.mp3"
+   },
+   "themes": [
+    "handshake"
+   ],
+   "camelot": "11A",
+   "take4": "songs/08/take4.mp3",
+   "compare": "songs/08/take4.mp3",
+   "compare_label": "Take 4"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+# rendered audio is build output
+players/*/songs/**/*.mp3
+players/*/songs/**/*.wav
+renders/
+*.wav
+
+# python
+__pycache__/
+*.pyc
+.venv/
+*.so
+
+# os
+.DS_Store
